@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NovaFlow AI — sloppy demo</title>
+<style>
+  body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f7f7fb; color: #222; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 90px 22px; }
+  .hero { position: relative; text-align: left; padding: 54px 46px; border-radius: 26px; background: #fff; box-shadow: 0 20px 60px rgba(124, 58, 237, .35), 0 0 0 1px rgba(124,58,237,.15); overflow: hidden; }
+  .blob { position: absolute; width: 380px; height: 380px; right: -80px; top: -120px; border-radius: 50%; background: linear-gradient(135deg, #a855f7, #3b82f6); filter: blur(70px); opacity: .5; }
+  .pill { display: inline-block; font-size: 12px; padding: 4px 11px; border-radius: 999px; background: #f3e8ff; color: #7c3aed; border: 1px solid #e9d5ff; margin-right: 6px; }
+  .eyebrow { font-family: "JetBrains Mono", Menlo, monospace; text-transform: uppercase; letter-spacing: .18em; font-size: 11px; color: #a1a1aa; margin: 22px 0 6px; }
+  h1 { font-size: 57px; line-height: 1.05; margin: 0 0 18px; background: linear-gradient(90deg, #7c3aed, #ec4899, #3b82f6); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 40px rgba(168,85,247,.25); }
+  .lead { font-size: 19px; color: #b4b4bc; max-width: 900px; }
+  .ctas { display: flex; gap: 13px; margin-top: 26px; }
+  .btn { padding: 13px 23px; border-radius: 13px; font-weight: 600; text-decoration: none; color: #fff; background: linear-gradient(90deg, #7c3aed, #3b82f6); box-shadow: 0 10px 30px rgba(124,58,237,.45); }
+  .btn.two { background: linear-gradient(90deg, #ec4899, #f97316); box-shadow: 0 10px 30px rgba(236,72,153,.45); }
+  .float { animation: float 3s ease-in-out infinite; }
+  @keyframes float { 50% { transform: translateY(-8px); } }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 46px; }
+  .card { padding: 22px; border-radius: 22px; background: rgba(255,255,255,.6); backdrop-filter: blur(12px); border: 1px solid #ece7ff; box-shadow: 0 8px 30px rgba(59,130,246,.2); }
+  .card .inner { margin-top: 14px; padding: 14px; border-radius: 22px; background: #faf7ff; border: 1px solid #ede9fe; }
+  .card h3 { margin: 6px 0 8px; font-size: 21px; }
+  .card p { color: #a3a3ad; font-size: 15px; margin: 0; }
+  .ico { font-size: 30px; }
+  .ico.sm { font-size: 20px; }
+  .card hr { border: 0; height: 1px; background: #ede9fe; margin: 14px 0; }
+  .callout { margin-top: 32px; padding: 18px 22px; background: #fff; border-left: 4px solid #7c3aed; border-radius: 10px; color: #000; }
+  .callout b { font-size: 17px; }
+  .stat { font-family: "JetBrains Mono", Menlo, monospace; font-size: 27px; font-weight: 700; color: #7c3aed; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero" id="hero">
+    <div class="blob" aria-hidden="true"></div>
+    <span class="pill">✨ New</span><span class="pill">AI-powered</span>
+    <div class="eyebrow">The future of work</div>
+    <h1>Unlock the power of <em>seamless</em> AI workflows</h1>
+    <p class="lead">NovaFlow helps teams <i>supercharge</i> productivity and elevate collaboration with next-gen intelligent automation that just works.</p>
+    <div class="ctas">
+      <a href="#" class="btn float">Get started free</a>
+      <a href="#" class="btn two">Book a demo</a>
+    </div>
+  </section>
+
+  <div class="grid">
+    <div class="card">
+      <div class="ico">🚀</div>
+      <span class="pill">Beta</span>
+      <h3>Lightning fast</h3>
+      <p>Experience <em>blazing</em> speed that transforms how you work.</p>
+      <hr>
+      <div class="inner"><div class="stat">10.4x</div><p>faster</p></div>
+    </div>
+    <div class="card">
+      <div class="ico sm">🧠</div>
+      <h3>Smart insights</h3>
+      <p>Harness AI to unleash limitless potential across your stack.</p>
+      <hr>
+      <div class="inner"><div class="stat">98.1%</div><p>accuracy</p></div>
+    </div>
+    <div class="card">
+      <div class="ico">🔒</div>
+      <span class="pill">Popular</span>
+      <h3>Enterprise ready</h3>
+      <p>Robust, world-class security that empowers your team.</p>
+      <hr>
+      <div class="inner"><div class="stat">1,204</div><p>teams</p></div>
+    </div>
+  </div>
+
+  <div class="callout" id="callout"><b>Built for modern teams</b> — trusted by 1,204 companies worldwide -- and growing every day.</div>
+</div>
+<script>window.__YBA_DEMO__ = true;</script>
+<script src="../content.js"></script>
+</body>
+</html>
