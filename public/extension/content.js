@@ -733,6 +733,24 @@
       },
     },
     {
+      id: 'heavyborder', label: 'Thin out heavy borders', hint: 'Thick outlines drawn around boxes and buttons',
+      agent: 'Replace heavy borders (3px or more on every side of a card, panel, button, or image) with a 1px hairline in a tinted neutral, or drop the border and separate with spacing or a background tint. Chunky outlines are a template default, not structure.',
+      auto: true,
+      apply(root, c) {
+        let n = 0;
+        for (const el of all(root)) {
+          if (/^(INPUT|TEXTAREA|SELECT|HR)$/.test(el.tagName)) continue;
+          const st = cs(el);
+          const sides = ['Top', 'Right', 'Bottom', 'Left'];
+          if (sides.some((s) => st[`border${s}Style`] === 'none' || px(st[`border${s}Width`]) < 3)) continue;
+          c.set(el, 'border-width', '1px');
+          n++; if (n <= 4) c.note(`Thinned the heavy border around “${short(el.textContent, 24)}”`);
+        }
+        if (!n) c.note('No heavy borders found.');
+        else if (n > 4) c.note(`…and ${n - 4} more.`);
+      },
+    },
+    {
       id: 'gradtext', label: 'Remove rainbow text', hint: 'Text filled with a colour gradient',
       agent: 'Replace gradient text (background-clip: text over a gradient) with a single solid colour. Create emphasis with weight or size, not colour effects.',
       auto: true,
@@ -1100,7 +1118,7 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
   // ───────────────────────── full-page scan ─────────────────────────
   // Runs detection-worthy rules in dry-run mode over <body>: nothing changes, every target element is recorded.
   const SCAN_RULES = ['fonts', 'gradtext', 'badges', 'labels', 'headlines', 'copytells', 'weakcta', 'emdash', 'targets', 'alt', 'iconlabels', 'mediaspace', 'italics', 'mono', 'scale', 'accent', 'neutrals', 'contrast',
-    'stripes', 'nest', 'toprow', 'mobilefit', 'hscroll', 'smalltext', 'heroMetric', 'cardGrid', 'embellish', 'icons', 'radius', 'motion'];
+    'stripes', 'heavyborder', 'nest', 'toprow', 'mobilefit', 'hscroll', 'smalltext', 'heroMetric', 'cardGrid', 'embellish', 'icons', 'radius', 'motion'];
   let scanResult = null, scanning = false;
 
   async function runScan(onProgress) {
@@ -1152,6 +1170,7 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
     [/^Evened out (\d+) text sizes?, (\d+) gaps? and (\d+) rounded corners?\./, 'Uneven sizing: $1 text sizes, $2 gaps, $3 corners'],
     [/^Removed (\d+) glows?, shadows? or blurs?\./, '$1 glows, shadows or blurs'],
     [/^Removed the coloured stripe on the (left|right) of /, 'Coloured stripe on the $1 of '],
+    [/^Thinned the heavy border around /, 'Heavy border around '],
     [/^Softened (\d+) pure black or white colours?\./, '$1 harsh pure black or white colours'],
     [/^Removed the box around /, 'Box inside a box: '],
     [/^Made “(.+)” one solid colour$/, 'Rainbow text: “$1”'],
@@ -1295,7 +1314,7 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
     ['Colour & detail', ['cta', 'accent', 'neutrals', 'contrast', 'icons', 'embellish']],
     ['Accessibility', ['targets', 'alt', 'iconlabels', 'mediaspace']],
     ['Responsive', ['mobilefit', 'hscroll', 'smalltext']],
-    ['Banned patterns', ['stripes', 'gradtext', 'heroMetric', 'cardGrid']],
+    ['Banned patterns', ['stripes', 'heavyborder', 'gradtext', 'heroMetric', 'cardGrid']],
     ['Behaviour', ['loading', 'motion']],
   ];
   // Colour coding: one hue per group at the same lightness and chroma, so groups read as equals.
