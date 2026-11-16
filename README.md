@@ -8,7 +8,7 @@ Yba is a Chrome extension that finds what makes a page look AI-made. It checks t
 
 ## How it works
 
-1. Open Yba with the toolbar icon or Alt+Shift+D and it scans the whole page, running 30 checks at the width you're viewing it. A panel lists the fonts the page uses (AI-default ones are marked), its colours, radii and effects, and every rule that fired, sorted by how many elements it hit.
+1. Open Yba with the toolbar icon or Alt+Shift+D and it scans the whole page, running 31 checks at the width you're viewing it. A panel lists the fonts the page uses (AI-default ones are marked), its colours, radii and effects, and every rule that fired, sorted by how many elements it hit.
 2. Click a finding, or any element on the page, to preview the fix. The rule applies right there as a temporary style, and pressing H flips between before and after. Nothing touches your code, and a refresh puts the page back.
 3. Approve the fixes you want, then Copy for agent puts a report on your clipboard. Page-wide problems come first, so fonts and colours get fixed once in your tokens. Each approved component follows with its CSS selector, its HTML from before the preview, and the instruction for every rule you checked. Paste it into Claude Code, Cursor or any agent that edits your files.
 
@@ -27,7 +27,7 @@ Yba is a Chrome extension that finds what makes a page look AI-made. It checks t
 
 Rules marked \* need new words or new assets, so Yba outlines the spot in red with a short note and leaves the rewrite to your agent. The rest preview live.
 
-The design rules follow [impeccable](https://impeccable.style)'s design laws. The font list comes from published notes on AI-default typography: Inter, Geist, Space Grotesk and friends, plus the generic 2010s defaults. The copy rules follow Wikipedia's guide to [signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), so Yba catches lines like "it's not X, it's Y" and "unlock the power of". Accessibility checks follow WCAG 2.2.
+The design rules follow [impeccable](https://impeccable.style)'s design laws. The font list comes from published notes on AI-default typography: Inter, Geist, Space Grotesk and friends, plus the generic 2010s defaults. The copy rules target the phrasing patterns common in AI-written copy, so Yba catches lines like "it's not X, it's Y" and "unlock the power of". Accessibility checks follow WCAG 2.2.
 
 The rules read computed styles, which makes them heuristics. Expect the odd false positive. That's why every fix is a preview you approve first, and the report goes to your agent as a spec to apply.
 
