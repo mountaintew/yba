@@ -43,3 +43,7 @@ Yba isn't in the Chrome Web Store yet, so it installs as an unpacked extension:
 
 The extension makes zero network requests and has no account. It asks for three permissions: the active tab, script injection to show its panel, and local storage for the components you approve. Approved components stay in your browser until you remove them.
 
+
+## Support Yba
+
+Support Yba on [App Builders PH](https://appbuildersph.com/apps/yba).
