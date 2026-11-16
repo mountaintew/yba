@@ -130,7 +130,7 @@ pre .k { color: oklch(84% 0.06 80); }
 .faq h2 { margin-bottom: 24px; }
 /* Room below the last question so it can line up with the sticky picture (measured in Faq.jsx). */
 @media (min-width: 961px) { .faq .qa-list { padding-bottom: var(--faq-tail, 80px); } }
-/* Accordion: native details/summary, tinted rows instead of divider lines, fade instead of height animation. */
+/* Accordion: native details/summary, tinted rows instead of divider lines. The answer animates its height on open and close. */
 .qa-list { display: grid; gap: 12px; }
 .qa { border-radius: 12px; background: var(--cream-2); transition: background-color .2s var(--ease); }
 .qa[open] { background: oklch(90% 0.04 78); }
@@ -141,7 +141,15 @@ pre .k { color: oklch(84% 0.06 80); }
 .qa .chev { color: var(--ink-2); transition: transform .2s var(--ease), color .15s var(--ease); }
 .qa[open] .chev { transform: rotate(180deg); }
 .qa p { padding: 0 20px 20px; color: var(--ink-2); }
-.qa[open] p { animation: qa-in .25s var(--ease); }
+/* Smooth open and close: animate the details content box from 0 to auto (Chromium 131+, Safari 18.4+ fades only). */
+.qa { interpolate-size: allow-keywords; }
+.qa::details-content { height: 0; overflow: clip; opacity: 0;
+  transition: height .3s var(--ease), opacity .25s var(--ease), content-visibility .3s allow-discrete; }
+.qa[open]::details-content { height: auto; opacity: 1; }
+/* Browsers without ::details-content keep a short fade on open. */
+@supports not selector(::details-content) {
+  .qa[open] p { animation: qa-in .25s var(--ease); }
+}
 @keyframes qa-in { from { opacity: 0; transform: translateY(-4px); } }
 
 /* closing CTA on the footer art */
@@ -167,4 +175,4 @@ pre .k { color: oklch(84% 0.06 80); }
   .demo iframe { display: none; }
   .demo-fallback { display: block; }
 }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } .qa[open] p { animation: none; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } .qa[open] p { animation: none; } .qa::details-content { transition: none; } }
