@@ -27,3 +27,6 @@ dist-ssr
 .agents
 .claude
 skills-lock.json
+
+# Chrome Web Store screenshots, answers and upload package (kept local)
+store-listing
