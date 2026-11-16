@@ -8,7 +8,7 @@ export const DEMO_URL = `${BASE}extension/demo/slop.html`;
 
 export const hero = {
   title: 'Spot what makes your site look AI-made',
-  lead: "Yba is a free Chrome extension that checks the page you're on for 39 signs of AI-made design and copy, from Inter on every heading to a card inside a card. It previews each fix in place and writes the instructions your coding agent needs.",
+  lead: "Yba is a free Chrome extension that checks the page you're on for 40 signs of AI-made design and copy, from Inter on every heading to a card inside a card. It previews each fix in place and writes the instructions your coding agent needs.",
   fine: `Free, ${DOWNLOAD.size}.`, // browser support is answered once, in the FAQ
 };
 
@@ -23,7 +23,7 @@ export const report = {
 };
 
 export const rules = {
-  title: '39 rules, grouped by where they show up',
+  title: '40 rules, grouped by where they show up',
   intro: "The rules come from impeccable's design laws, published lists of AI-default fonts, Wikipedia's guide to signs of AI writing, and WCAG 2.2.",
   flagTip: 'Flagged on the page for your agent to rewrite',
   // `agent: true` marks rules whose fix needs new words or assets, so the extension flags them instead of previewing.
@@ -34,7 +34,7 @@ export const rules = {
     ['Colour & detail', [['Make one main button stand out'], ['Use one brand colour'], ['Soften pure black and white'], ['Make faint text readable'], ['Make icons match'], ['Remove glows and heavy shadows']]],
     ['Accessibility', [['Make buttons easy to tap'], ['Describe images', true], ['Name icon-only buttons', true], ['Stop images shifting the page', true]]],
     ['Responsive', [['Shrink big pictures on phones', true], ['Stop sideways scrolling'], ['Make small text bigger']]],
-    ['Banned patterns', [['Remove side stripes'], ['Remove rainbow text'], ['Rethink big-number stats', true], ['Vary repeated cards', true]]],
+    ['Banned patterns', [['Remove side stripes'], ['Thin out heavy borders'], ['Remove rainbow text'], ['Rethink big-number stats', true], ['Vary repeated cards', true]]],
     ['Behaviour', [['Show loading progress', true], ['Use helpful animation']]],
   ],
 };
