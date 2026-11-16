@@ -8,7 +8,7 @@ export const DEMO_URL = `${BASE}extension/demo/slop.html`;
 
 export const hero = {
   title: 'Spot what makes your site look AI-made',
-  lead: "Yba is a free Chrome extension that checks the page you're on for 40 signs of AI-made design and copy, from Inter on every heading to a card inside a card. It previews each fix in place and writes the instructions your coding agent needs.",
+  lead: "Yba is a free Chrome extension that checks the page you're on for signs of AI-made design and copy, from Inter on every heading to a card inside a card. It previews each fix in place and writes the instructions your coding agent needs.",
   fine: `Free, ${DOWNLOAD.size}.`, // browser support is answered once, in the FAQ
 };
 
@@ -23,7 +23,7 @@ export const report = {
 };
 
 export const rules = {
-  title: '40 rules, grouped by where they show up',
+  title: 'What Yba checks on your page',
   intro: "The rules come from impeccable's design laws, published lists of AI-default fonts, the phrasing patterns common in AI-written copy, and WCAG 2.2.",
   groups: [
     ['Content', [['Remove filler badges'], ['Remove repeated labels'], ['Make headlines specific'], ['Rewrite AI-sounding text'], ['Make button text specific'], ['Remove long dashes'], ['Show the real product']]],
