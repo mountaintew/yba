@@ -8,3 +8,7 @@ export function DownloadIcon() {
 export function ChevronIcon() {
   return <svg {...base} className="i chev"><path d="M5 7.5 10 12.5 15 7.5" /></svg>;
 }
+
+export function FlagIcon() {
+  return <svg {...base}><path d="M4.5 17.5V3.5M4.5 4h9.5l-2 3.5 2 3.5H4.5" /></svg>;
+}
