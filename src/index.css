@@ -136,6 +136,8 @@ pre .k { color: oklch(84% 0.06 80); }
 .faq-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .45s var(--ease); }
 .faq-art img.is-active { opacity: 1; }
 .faq h2 { margin-bottom: 24px; }
+/* Room below the last question so it can line up with the sticky picture (measured in Faq.jsx). */
+@media (min-width: 961px) { .faq .qa-list { padding-bottom: var(--faq-tail, 80px); } }
 /* Accordion: native details/summary, tinted rows instead of divider lines, fade instead of height animation. */
 .qa-list { display: grid; gap: 12px; }
 .qa { border-radius: 12px; background: var(--cream-2); transition: background-color .2s var(--ease); }

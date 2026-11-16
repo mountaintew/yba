@@ -8,6 +8,7 @@ import ScrollWords from './ScrollWords.jsx';
 export default function Faq() {
   const [active, setActive] = useState(0);
   const itemRefs = useRef([]);
+  const artRef = useRef(null);
 
   useEffect(() => {
     // A zero-height band at the vertical centre of the viewport; the question crossing it is "current".
@@ -23,10 +24,24 @@ export default function Faq() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    // The sticky picture stops following once the list ends. Leave enough room below the last question
+    // for its centre to reach the picture's centre: half the picture minus half the question.
+    const art = artRef.current;
+    const last = itemRefs.current.at(-1);
+    const list = last?.parentElement;
+    if (!art || !list) return undefined;
+    const measure = () => list.style.setProperty('--faq-tail', `${Math.max(0, (art.offsetHeight - last.offsetHeight) / 2)}px`);
+    const ro = new ResizeObserver(measure);
+    ro.observe(art);
+    ro.observe(last);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <section id="questions" className="faq" aria-labelledby="faq-title">
       <div className="wrap">
-        <div className="faq-art">
+        <div className="faq-art" ref={artRef}>
           {faq.items.map((item, i) => (
             <img
               key={item.art}
