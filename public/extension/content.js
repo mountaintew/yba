@@ -1373,9 +1373,12 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
   .sw:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
   .sw[disabled] { opacity: .4; pointer-events: none; }
   /* Group colour coding: --g is set per group. Tinted header, coloured checkboxes and notes; no stripes or boxed sections. */
-  .gchips { display: flex; flex-shrink: 0; gap: 6px; overflow-x: auto; padding: 0 var(--pad) 10px; scrollbar-width: none; }
-  .gchips::-webkit-scrollbar { display: none; }
-  .gchip { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; font-size: 12px; color: var(--mute);
+  /* Chip row scrolls sideways: same thin scrollbar as the list, plus drag-to-slide and wheel-to-scroll (see JS). */
+  .gchips { display: flex; flex-shrink: 0; gap: 6px; overflow-x: auto; padding: 0 var(--pad) 6px; margin-bottom: 4px; overscroll-behavior-x: contain;
+            scrollbar-width: thin; scrollbar-color: var(--dim) transparent; cursor: grab; user-select: none; }
+  .gchips:hover { scrollbar-color: var(--mute) transparent; }
+  .gchips.drag, .gchips.drag .gchip { cursor: grabbing; }
+  .gchip { cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; font-size: 12px; color: var(--mute);
            background: color-mix(in oklch, var(--g) 10%, transparent); transition: background-color .15s, color .15s; }
   .gchip::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--g); }
   .gchip:hover, .gchip.on { color: var(--fg); background: color-mix(in oklch, var(--g) 22%, transparent); }
@@ -1611,8 +1614,31 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
     pop.style.left = Math.max(m, left) + 'px'; pop.style.top = top + 'px';
   }
 
-  // Colour chips scroll the rule list to their group.
-  $('.gchips').addEventListener('click', (e) => {
+  // Chip row: drag to slide sideways, and map vertical wheel to horizontal scroll.
+  const gchips = $('.gchips');
+  let drag = null, dragged = false;
+  gchips.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0 || e.pointerType === 'touch') return; // touch already scrolls natively
+    drag = { x: e.clientX, left: gchips.scrollLeft, id: e.pointerId }; dragged = false;
+  });
+  gchips.addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x;
+    if (!dragged && Math.abs(dx) < 4) return;
+    if (!dragged) { dragged = true; gchips.classList.add('drag'); gchips.setPointerCapture(drag.id); }
+    gchips.scrollLeft = drag.left - dx;
+  });
+  const endDrag = () => { drag = null; gchips.classList.remove('drag'); };
+  gchips.addEventListener('pointerup', endDrag);
+  gchips.addEventListener('pointercancel', endDrag);
+  gchips.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || gchips.scrollWidth <= gchips.clientWidth) return;
+    e.preventDefault(); gchips.scrollLeft += e.deltaY;
+  }, { passive: false });
+
+  // Colour chips scroll the rule list to their group (unless the pointer was dragging the row).
+  gchips.addEventListener('click', (e) => {
+    if (dragged) { dragged = false; e.preventDefault(); return; }
     const chip = e.target.closest('[data-jump]'); if (!chip) return;
     const grp = list.querySelector(`[data-grp="${chip.dataset.jump}"]`); if (!grp) return;
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
