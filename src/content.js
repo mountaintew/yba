@@ -24,7 +24,7 @@ export const report = {
 
 export const rules = {
   title: '40 rules, grouped by where they show up',
-  intro: "The rules come from impeccable's design laws, published lists of AI-default fonts, Wikipedia's guide to signs of AI writing, and WCAG 2.2.",
+  intro: "The rules come from impeccable's design laws, published lists of AI-default fonts, the phrasing patterns common in AI-written copy, and WCAG 2.2.",
   groups: [
     ['Content', [['Remove filler badges'], ['Remove repeated labels'], ['Make headlines specific'], ['Rewrite AI-sounding text'], ['Make button text specific'], ['Remove long dashes'], ['Show the real product']]],
     ['Typography', [['Replace overused AI fonts'], ['Remove random italics'], ['Use code-style font only for code'], ['Make headings stand out'], ['Fix awkward line breaks'], ['Line up numbers'], ['Fine-tune alignment']]],

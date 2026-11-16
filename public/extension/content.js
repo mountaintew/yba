@@ -885,7 +885,7 @@
       agent: 'Rewrite copy that reads as machine-written, keeping every fact. Remove: contrasts that only add weight ("it\'s not X, it\'s Y", "not just X but Y", a clipped ", no guessing" tail); negation lists ("no setup, no fees, no waiting"); self-answered reveals ("The result?", "The best part:"); one-line closers ("That\'s the real win", "Let that sink in"); sayings that sound deep ("at its core", "what really matters"); staged run-ups ("Let\'s dive in", "Here\'s the thing"); arguing with no one ("To be clear", "Don\'t get me wrong"); inflated significance ("plays a pivotal role", "stands as a testament"); sales words ("nestled", "breathtaking", "stunning"); "serves as" or "boasts" where "is" or "has" works; stock AI words (delve, tapestry, showcase, underscore, seamless, unlock); Title Case headings; a bold label on every list item; chatbot leftovers ("I hope this helps"); and exclamation points. Say what the product does, with a number, a name or a concrete step. Never invent stats or testimonials.',
       auto: 'mark',
       apply(root, c) {
-        // Patterns after Wikipedia's "Signs of AI writing", strongest first.
+        // Phrasing patterns common in AI-written copy, strongest first.
         const TELLS = [
           [/\b(it'?s|this is|that'?s|this isn'?t|it isn'?t)\s+(not\s+)?(just\s+)?[^.?!]{1,48}[,;.]\s*(it'?s|this is|but)\s/i, '“Not X, it’s Y” phrasing'],
           [/\bnot (just|only|merely)\b[^.?!]{1,48}\bbut\b/i, '“Not X, it’s Y” phrasing'],
