@@ -60,7 +60,7 @@ export default function Faq() {
           <div className="qa-list">
             {faq.items.map((item, i) => (
               <details className="qa" key={item.q} open data-index={i} ref={(el) => { itemRefs.current[i] = el; }}>
-                <summary><span><ScrollWords>{item.q}</ScrollWords></span><ChevronIcon /></summary>
+                <summary><span>{item.q}</span><ChevronIcon /></summary>
                 <p>{item.a}</p>
               </details>
             ))}
