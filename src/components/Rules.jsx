@@ -1,11 +1,5 @@
 import { rules } from '../content.js';
 import ScrollWords from './ScrollWords.jsx';
-import { FlagIcon } from './Icons.jsx';
-
-// Flag icon with a tooltip on hover or keyboard focus; marks rules the extension flags for the agent.
-function Flag() {
-  return <span className="flag" tabIndex={0} role="img" aria-label={rules.flagTip} data-tip={rules.flagTip}><FlagIcon /></span>;
-}
 
 export default function Rules() {
   return (
@@ -20,8 +14,8 @@ export default function Rules() {
             <div className="group" key={group}>
               <h3>{group}</h3>
               <ul>
-                {items.map(([label, agent]) => (
-                  <li key={label}> {label} {agent && <Flag />}</li>
+                {items.map(([label]) => (
+                  <li key={label}>{label}</li>
                 ))}
               </ul>
             </div>

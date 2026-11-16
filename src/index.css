@@ -11,7 +11,6 @@
   --on-cobalt: oklch(96% 0.02 80);
   --on-cobalt-2: oklch(89% 0.035 80);
   --line: oklch(30% 0.045 55 / .14);
-  --flag: oklch(58% 0.17 30);
   --display: "Young Serif", "Iowan Old Style", Georgia, serif;
   --text: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, monospace;
@@ -118,16 +117,7 @@ pre .k { color: oklch(84% 0.06 80); }
 @media (max-width: 599px) { .groups { grid-template-columns: minmax(0, 1fr); gap: 40px; } }
 .group h3 { margin-bottom: 12px; }
 .group ul { list-style: none; margin: 0; padding: 0; }
-.group li { padding: 4px 0; display: flex; align-items: flex-start; gap: 12px; }
-.group li .flag { margin-top: calc((1lh - 24px) / 2); } /* centred on the first line when a label wraps */
-/* Agent-only flag: icon in the flag token, with a tooltip on hover or keyboard focus. */
-.flag { position: relative; margin-left: auto; width: 24px; height: 24px; display: grid; place-items: center; flex-shrink: 0; border-radius: 4px; cursor: default; color: var(--flag); }
-.flag .i { width: 16px; height: 16px; }
-.flag:focus-visible { outline: 2px solid var(--cobalt); outline-offset: 2px; }
-.flag::after { content: attr(data-tip); position: absolute; right: -8px; bottom: calc(100% + 8px); width: max-content; max-width: 240px; padding: 8px 12px; border-radius: 8px;
-               background: var(--espresso); color: var(--cream); font-size: 14px; line-height: 1.4; text-align: left; opacity: 0; transform: translateY(4px); pointer-events: none;
-               transition: opacity .15s var(--ease), transform .15s var(--ease); z-index: 1; }
-.flag:hover::after, .flag:focus-visible::after { opacity: 1; transform: none; }
+.group li { padding: 4px 0; }
 
 /* questions */
 .faq .wrap { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 64px; align-items: start; }
