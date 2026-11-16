@@ -4,7 +4,7 @@
 
 An assistant for desloping interfaces.
 
-Yba is a Chrome extension that finds what makes a page look AI-made. It checks the page you're on for 39 signs of AI-generated design and copy, previews each fix on the live page, and writes a markdown report your coding agent can apply to the real source. It also runs in Edge, Arc, Brave, Opera and other Chromium browsers.
+Yba is a Chrome extension that finds what makes a page look AI-made. It checks the page you're on for 40 signs of AI-generated design and copy, previews each fix on the live page, and writes a markdown report your coding agent can apply to the real source. It also runs in Edge, Arc, Brave, Opera and other Chromium browsers.
 
 ## How it works
 
@@ -22,7 +22,7 @@ Yba is a Chrome extension that finds what makes a page look AI-made. It checks t
 | Colour & detail | make one main button stand out, use one brand colour, soften pure black and white, make faint text readable, make icons match, remove glows and heavy shadows |
 | Accessibility | make buttons easy to tap, describe images\*, name icon-only buttons\*, stop images shifting the page\* |
 | Responsive | shrink big pictures on phones\*, stop sideways scrolling, make small text bigger |
-| Banned patterns | remove side stripes, remove rainbow text, rethink big-number stats\*, vary repeated cards\* |
+| Banned patterns | remove side stripes, thin out heavy borders, remove rainbow text, rethink big-number stats\*, vary repeated cards\* |
 | Behaviour | show loading progress\*, use helpful animation |
 
 Rules marked \* need new words or new assets, so Yba outlines the spot in red with a short note and leaves the rewrite to your agent. The rest preview live.

@@ -101,9 +101,10 @@ section { padding: 96px 0; }
 .report h2 { margin-bottom: 24px; text-wrap: pretty; } /* balance pushed "and" down a line it fitted on */
 .report p { color: var(--ink-2); }
 .report p + p { margin-top: 16px; }
-.pre-wrap { min-width: 0; }
-pre { margin: 0; padding: 28px; border-radius: 16px; background: var(--espresso); color: var(--cream); font: 14px/1.65 var(--mono); overflow-x: auto; white-space: pre; max-height: 460px;
-      scrollbar-width: thin; scrollbar-color: oklch(62% 0.06 60) transparent; }
+/* The dark surface lives on the wrapper so pre's scrollbars sit inside the padding, clear of the rounded corners. */
+.pre-wrap { min-width: 0; padding: 28px 28px 16px; border-radius: 16px; background: var(--espresso); }
+pre { margin: 0; padding: 0 0 12px; color: var(--cream); font: 14px/1.65 var(--mono); overflow: auto; white-space: pre; max-height: 416px;
+      scrollbar-width: thin; scrollbar-color: oklch(62% 0.06 60) transparent; border-radius: 4px; }
 pre .h { color: var(--capy-hi); }
 pre .k { color: oklch(84% 0.06 80); }
 
