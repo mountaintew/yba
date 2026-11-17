@@ -7,7 +7,7 @@ export default function Closing() {
     <section className="closing" aria-labelledby="closing-title">
       <div className="wrap">
         <h2 id="closing-title"><ScrollWords>{closing.title}</ScrollWords></h2>
-        <p><ScrollWords>{closing.body}</ScrollWords></p>
+        <p>{closing.body}</p>
         <DownloadButton />
         <p className="version">{closing.version}</p>
       </div>
