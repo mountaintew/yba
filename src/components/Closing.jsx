@@ -9,7 +9,7 @@ export default function Closing() {
         <h2 id="closing-title"><ScrollWords>{closing.title}</ScrollWords></h2>
         <p>{closing.body}</p>
         <DownloadButton />
-        <p className="version">{closing.version}</p>
+        <p className="version">{closing.version} · <a href={`${import.meta.env.BASE_URL}privacy/`}>Privacy policy</a></p>
       </div>
     </section>
   );

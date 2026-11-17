@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy policy · Yba</title>
+  <meta name="description" content="How the Yba Chrome extension and website handle your data. The extension collects no personal data and sends nothing to a server." />
+  <link rel="canonical" href="https://yba.lesterantonio.dev/privacy/" />
+  <link rel="icon" href="/assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Young+Serif&display=swap" rel="stylesheet" />
+  <style>
+    :root { --cream: oklch(95.5% 0.025 80); --espresso: oklch(26% 0.035 55); --ink-2: oklch(42% 0.04 55); --line: oklch(85% 0.03 75); --link: #305a96; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--cream); color: var(--espresso); font: 18px/1.6 "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; text-wrap: pretty; }
+    main { max-width: 720px; margin: 0 auto; padding: 64px 16px 96px; }
+    h1, h2 { font-family: "Young Serif", Georgia, serif; font-weight: 400; line-height: 1.15; margin: 0; text-wrap: balance; }
+    h1 { font-size: 40px; margin-bottom: 8px; }
+    h2 { font-size: 24px; margin: 48px 0 12px; }
+    p, ul { margin: 0 0 16px; }
+    ul { padding-left: 24px; }
+    li { margin-bottom: 8px; }
+    a { color: var(--link); text-underline-offset: 3px; }
+    .meta { color: var(--ink-2); margin-bottom: 40px; }
+    .home { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 40px; font-weight: 700; text-decoration: none; color: var(--espresso); }
+    .home img { width: 32px; height: 32px; border-radius: 50%; }
+    footer { margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: 16px; }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="home" href="/"><img src="/assets/avatar.png" alt="" width="32" height="32" />Yba</a>
+    <h1>Privacy policy</h1>
+    <p class="meta">Effective 17 November 2026</p>
+
+    <p>This policy applies to the Yba Chrome extension and to the Yba website at yba.lesterantonio.dev.</p>
+
+    <h2>Summary</h2>
+    <ul>
+      <li>The extension does not collect, sell or share personal data.</li>
+      <li>The extension makes no network requests. Nothing that it reads leaves your browser.</li>
+      <li>The extension has no account and no sign-in.</li>
+    </ul>
+
+    <h2>What the extension reads</h2>
+    <p>Yba runs only when you click its toolbar icon or press its keyboard shortcut. It then reads the page in the current tab: the text, the HTML structure and the computed styles. It uses this information to find design and copy issues and to show previews of fixes on that page.</p>
+    <p>Yba does not read other tabs, your browsing history, form input, passwords or cookies.</p>
+
+    <h2>What the extension stores</h2>
+    <p>When you approve a component, Yba saves these details in your browser with <code>chrome.storage.local</code>:</p>
+    <ul>
+      <li>the address of the page</li>
+      <li>a CSS selector for the component</li>
+      <li>a short sample of the component's text and a copy of its HTML</li>
+      <li>the rules that you selected</li>
+    </ul>
+    <p>This data stays on your device. Yba keeps it until you remove the component in the extension or uninstall the extension.</p>
+
+    <h2>The report</h2>
+    <p>When you click Copy for agent, Yba puts a text report on your clipboard. Yba does not send the report anywhere. You decide where to paste it.</p>
+
+    <h2>Permissions</h2>
+    <ul>
+      <li><strong>activeTab:</strong> gives Yba temporary access to the current tab, only after you open it.</li>
+      <li><strong>scripting:</strong> adds the Yba panel to that tab.</li>
+      <li><strong>storage:</strong> saves the components that you approve, on your device.</li>
+    </ul>
+
+    <h2>The website</h2>
+    <p>The website has no analytics, no tracking and no cookies. It loads fonts from Google Fonts, so Google receives your IP address when the page loads. The <a href="https://policies.google.com/privacy">Google privacy policy</a> applies to that request.</p>
+
+    <h2>Changes to this policy</h2>
+    <p>If this policy changes, the new version will be on this page with a new effective date.</p>
+
+    <h2>Contact</h2>
+    <p>For questions about this policy, open an issue at <a href="https://github.com/mountaintew/yba/issues">github.com/mountaintew/yba/issues</a>.</p>
+
+    <footer><a href="/">Back to Yba</a></footer>
+  </main>
+</body>
+</html>
