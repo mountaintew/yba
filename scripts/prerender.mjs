@@ -12,7 +12,7 @@ const structured = [
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
     name: 'Yba',
-    description: 'An assistant for desloping interfaces. A Chrome extension that finds what makes a page look AI-made, previews each fix on the live page, and writes instructions for your coding agent.',
+    description: 'An assistant for deslopping interfaces. A Chrome extension that finds what makes a page look AI-made, previews each fix on the live page, and writes instructions for your coding agent.',
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Chrome, Edge, Arc, Brave, Opera',
     url: `${SITE_URL}/`,
