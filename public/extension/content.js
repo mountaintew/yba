@@ -31,8 +31,9 @@
   const isOurs = (el) => el?.closest?.(HOST_TAG) || el?.tagName === HOST_TAG.toUpperCase();
   // Visually hidden screen-reader copies (.sr-only and friends) aren't on screen, so no rule should judge them.
   const SR_ONLY = '.sr-only,.visually-hidden,.screen-reader-text,.screenreader-only,.a11y-hidden';
-  // While the bar is open it covers the top of the viewport. Page elements pinned there (fixed or sticky headers)
-  // are hidden behind it, so they are left out of checking; refreshed before each scan, preview and audit.
+  // While the bar is open it covers the top of the viewport. pushPage() moves pinned headers below it; anything it
+  // missed (e.g. made fixed later by the page's own script) is hidden behind the bar, so it is left out of checking.
+  // Refreshed before each scan, preview and audit.
   const BAR_H = 48;
   let barOpen = false, coveredByBar = [];
   function refreshCovered() {
@@ -43,6 +44,29 @@
     });
   }
   const underBar = (el) => coveredByBar.some((c) => c.contains(el));
+  // While the bar is open the page is pushed down by BAR_H instead of being covered: <html> gets a top margin and
+  // fixed/sticky elements pinned to the top move down with it. Inline values are saved and restored on close.
+  let unpush = [];
+  function pushPage(v) {
+    unpush.forEach((undo) => undo()); unpush = [];
+    if (!v) return;
+    // Set an inline !important value and remember how to put the old inline value back.
+    const set = (el, prop, val) => {
+      const old = el.style.getPropertyValue(prop), pri = el.style.getPropertyPriority(prop);
+      el.style.setProperty(prop, val, 'important');
+      unpush.push(() => (old ? el.style.setProperty(prop, old, pri) : el.style.removeProperty(prop)));
+    };
+    const html = document.documentElement;
+    set(html, 'margin-top', `calc(${getComputedStyle(html).marginTop} + ${BAR_H}px)`);
+    for (const el of document.querySelectorAll('body *')) {
+      if (isOurs(el)) continue;
+      const st = getComputedStyle(el);
+      if (!/fixed|sticky/.test(st.position) || st.top === 'auto') continue;
+      if (!st.top.endsWith('px') || px(st.top) > BAR_H) continue; // only things pinned at (or near) the top edge
+      set(el, 'top', `${px(st.top) + BAR_H}px`);
+    }
+  }
+
   const all = (root) => [root, ...root.querySelectorAll('*')].filter((el) => !isOurs(el) && !['SCRIPT', 'STYLE', 'LINK', 'META', 'NOSCRIPT'].includes(el.tagName) && !el.closest(SR_ONLY) && !underBar(el));
   const visible = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && cs(el).visibility !== 'hidden'; };
   const ownText = (el) => [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim();
@@ -1515,8 +1539,9 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
     open = v; barOpen = v;
     if (v && !host.isConnected) document.documentElement.appendChild(host);
     requestAnimationFrame(() => { bar.classList.toggle('open', v); renderMarks(); });
+    pushPage(v);
     if (v) { setInspect(true); restorePreviews(); startScan(); toast(HINT, 4000); }
-    else { closePop(); setInspect(false); drawer.classList.remove('open'); }
+    else { closePop(); setInspect(false); drawer.classList.remove('open'); scanPanel.classList.remove('open'); }
   }
   function setInspect(v) {
     inspecting = v;
