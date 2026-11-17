@@ -159,6 +159,7 @@ pre .k { color: oklch(84% 0.06 80); }
 .closing h2 { margin: 0 auto 24px; max-width: 16em; }
 .closing p { margin: 0 auto 32px; color: var(--on-cobalt-2); }
 .closing .version { margin: 20px auto 0; font-size: 14px; font-variant-numeric: tabular-nums; }
+.closing .version a { color: inherit; text-underline-offset: 3px; }
 
 @media (max-width: 960px) {
   .nav nav { display: none; }
