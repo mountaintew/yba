@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Yba",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An assistant for deslopping interfaces. Preview fixes on any page and export instructions for your coding agent.",
   "permissions": [
     "storage",
