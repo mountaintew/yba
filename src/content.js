@@ -3,7 +3,7 @@
 // Public files resolve from Vite's base path, so downloads and the demo still work if the site is hosted under a sub-path.
 const BASE = import.meta.env.BASE_URL;
 export const SITE_URL = 'https://yba.lesterantonio.dev';
-export const DOWNLOAD = { href: `${BASE}yba-extension.zip`, filename: 'yba-extension.zip', size: '85 KB' };
+export const DOWNLOAD = { href: `${BASE}yba-extension.zip`, filename: 'yba-extension.zip', size: '86 KB' };
 export const DEMO_URL = `${BASE}extension/demo/slop.html`;
 
 export const hero = {
