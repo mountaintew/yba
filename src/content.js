@@ -3,13 +3,15 @@
 // Public files resolve from Vite's base path, so downloads and the demo still work if the site is hosted under a sub-path.
 const BASE = import.meta.env.BASE_URL;
 export const SITE_URL = 'https://yba.lesterantonio.dev';
-export const DOWNLOAD = { href: `${BASE}yba-extension.zip`, filename: 'yba-extension.zip', size: '86 KB' };
+// The Chrome Web Store listing. Each button tags its link so store analytics show which placement sent the visit.
+export const STORE_URL = 'https://chromewebstore.google.com/detail/Yba/nnojglncnpiibfhbajbepkdlpdllbeij';
+export const storeLink = (placement) =>
+  `${STORE_URL}?${new URLSearchParams({ utm_source: 'yba-site', utm_medium: 'website', utm_campaign: 'landing', utm_content: placement })}`;
 export const DEMO_URL = `${BASE}extension/demo/slop.html`;
 
 export const hero = {
   title: 'Spot what makes your site look AI-made',
   lead: "Yba is a free Chrome extension that checks the page you're on for signs of AI-made design and copy, from Inter on every heading to a card inside a card. It previews each fix in place and writes the instructions your coding agent needs.",
-  fine: `Free, ${DOWNLOAD.size}.`, // browser support is answered once, in the FAQ
 };
 
 export const how = {
@@ -56,6 +58,6 @@ export const faq = {
 
 export const closing = {
   title: 'Clean up your next vibe-coded page',
-  body: 'Until the store listing is live, it installs as an unpacked extension.',
+  body: 'Yba is free on the Chrome Web Store.',
   version: 'Yba v1.0',
 };

@@ -33,11 +33,9 @@ The rules read computed styles, which makes them heuristics. Expect the odd fals
 
 ## Install
 
-Yba isn't in the Chrome Web Store yet, so it installs as an unpacked extension:
+Add Yba from the [Chrome Web Store](https://chromewebstore.google.com/detail/Yba/nnojglncnpiibfhbajbepkdlpdllbeij?utm_source=github&utm_medium=readme&utm_campaign=repo). It also runs in Edge, Arc, Brave, Opera and other Chromium browsers.
 
-1. Download [`yba-extension.zip`](public/yba-extension.zip) and unzip it.
-2. Open `chrome://extensions` and turn on Developer mode.
-3. Click Load unpacked and pick the `yba` folder.
+To run the version in this repo, open `chrome://extensions`, turn on Developer mode, click Load unpacked and pick the `public/extension` folder.
 
 ## Privacy
 
