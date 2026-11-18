@@ -12,7 +12,7 @@ export default function Hero() {
           <h1 id="hero-title">{hero.title}</h1>
           <p className="lead">{keepTogether(hero.lead)}</p>
           <div className="actions">
-            <DownloadButton />
+            <DownloadButton placement="hero" />
           </div>
         </div>
       </div>

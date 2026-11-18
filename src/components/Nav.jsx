@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import DownloadButton from './DownloadButton.jsx';
 
-// Floats over the hero, then turns solid once the hero scrolls away so Download stays in reach.
+// Floats over the hero, then turns solid once the hero scrolls away so Add to Chrome stays in reach.
 export default function Nav() {
   const [solid, setSolid] = useState(false);
 
@@ -25,7 +25,7 @@ export default function Nav() {
           <a href="#rules">Rules</a>
           <a href="#questions">Questions</a>
         </nav>
-        <DownloadButton small>Download</DownloadButton>
+        <DownloadButton placement="nav" small>Add to Chrome</DownloadButton>
       </div>
     </header>
   );

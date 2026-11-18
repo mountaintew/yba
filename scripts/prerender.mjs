@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
-const { render, faq, SITE_URL } = await import(pathToFileURL(resolve(root, 'dist-ssr/entry-server.js')).href);
+const { render, faq, SITE_URL, STORE_URL } = await import(pathToFileURL(resolve(root, 'dist-ssr/entry-server.js')).href);
 
 const json = (data) => JSON.stringify(data).replace(/</g, '\\u003c');
 const structured = [
@@ -17,6 +17,8 @@ const structured = [
     operatingSystem: 'Chrome, Edge, Arc, Brave, Opera',
     url: `${SITE_URL}/`,
     image: `${SITE_URL}/og-image.jpg`,
+    installUrl: STORE_URL,
+    downloadUrl: STORE_URL,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
   },
   {
