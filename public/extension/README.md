@@ -16,7 +16,7 @@ Opening Yba slides a bar down from the top and scans the whole page. The scan pa
 
 The scan measures the page at the width you're viewing it. Resize to a phone width (375px) and scan again to catch mobile problems. Anything hidden behind the Yba bar, such as a fixed header, is left out while the bar is open.
 
-With Inspect on, hover to highlight a component and press ↑ to move to its parent. Click to open the popover, which lists all 40 rules in eight groups. Check a rule, a whole group or All rules to apply the fixes to the page; a note under each rule says what changed. Flip Show changes, or press H, to compare against the original without losing your checks.
+With Inspect on, hover to highlight a component and press ↑ to move to its parent. Click to open the popover, which lists all 52 rules in eight groups. Check a rule, a whole group or All rules to apply the fixes to the page; a note under each rule says what changed. Flip Show changes, or press H, to compare against the original without losing your checks.
 
 Approve adds the component to the report. Closing without approving puts the page back. Copy for agent puts the report on your clipboard: page-wide findings first, then each approved component with its selector, its HTML from before the preview, and what changed. The counter in the bar opens the list of approved components, where you can remove them.
 
@@ -26,14 +26,14 @@ Approved components are saved per page in your browser, and their previews come 
 
 | Group | Rules |
 |---|---|
-| Content | remove filler badges, remove repeated labels, make headlines specific\*, rewrite AI-sounding text\*, make button text specific\*, remove long dashes, show the real product\* |
+| Content | remove filler badges, remove repeated labels, make headlines specific\*, rewrite AI-sounding text\*, make button text specific\*, remove long dashes, show the real product\*, answer real questions in the FAQ\*, back up the logo bar\* |
 | Typography | replace overused AI fonts, remove random italics, use code-style font only for code, make headings stand out, fix awkward line breaks, line up numbers, fine-tune alignment |
 | Layout | use consistent sizes, make the main thing bigger, use space instead of lines, remove boxes inside boxes, line up side-by-side text, match rounded corners |
 | Colour & detail | make one main button stand out, use one brand colour, soften pure black and white, make faint text readable, make icons match, remove glows and heavy shadows |
-| Accessibility | make buttons easy to tap, describe images\*, name icon-only buttons\*, stop images shifting the page\* |
+| Accessibility | make buttons easy to tap, describe images\*, name icon-only buttons\*, stop images shifting the page\*, fix links that go nowhere\*, use real buttons\*, show a hand cursor on controls, label every form field\*, keep heading levels in order\* |
 | Responsive | shrink big pictures on phones\*, stop sideways scrolling, make small text bigger |
-| Banned patterns | remove side stripes, thin out heavy borders, remove rainbow text, rethink big-number stats\*, vary repeated cards\* |
-| Behaviour | show loading progress\*, use helpful animation |
+| Banned patterns | remove side stripes, thin out heavy borders, remove rainbow text, rethink big-number stats\*, vary repeated cards\*, remove background grids, drop arrows from buttons, remove decorative status dots, drop fake terminal windows\* |
+| Behaviour | show loading progress\*, use helpful animation, load the main image first\* |
 
 Rules marked \* need new words or new assets, so Yba outlines the spot in red with a short note and leaves the rewrite to your agent. The rest preview live, and unchecking a rule or closing the popover restores the page exactly.
 

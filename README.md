@@ -4,11 +4,11 @@
 
 An assistant for deslopping interfaces.
 
-Yba is a Chrome extension that finds what makes a page look AI-made. It checks the page you're on for 40 signs of AI-generated design and copy, previews each fix on the live page, and writes a markdown report your coding agent can apply to the real source. It also runs in Edge, Arc, Brave, Opera and other Chromium browsers.
+Yba is a Chrome extension that finds what makes a page look AI-made. It checks the page you're on for 52 signs of AI-generated design and copy, previews each fix on the live page, and writes a markdown report your coding agent can apply to the real source. It also runs in Edge, Arc, Brave, Opera and other Chromium browsers.
 
 ## How it works
 
-1. Open Yba with the toolbar icon or Alt+Shift+D and it scans the whole page, running 31 checks at the width you're viewing it. A panel lists the fonts the page uses (AI-default ones are marked), its colours, radii and effects, and every rule that fired, sorted by how many elements it hit.
+1. Open Yba with the toolbar icon or Alt+Shift+D and it scans the whole page, running 43 checks at the width you're viewing it. A panel lists the fonts the page uses (AI-default ones are marked), its colours, radii and effects, and every rule that fired, sorted by how many elements it hit.
 2. Click a finding, or any element on the page, to preview the fix. The rule applies right there as a temporary style, and pressing H flips between before and after. Nothing touches your code, and a refresh puts the page back.
 3. Approve the fixes you want, then Copy for agent puts a report on your clipboard. Page-wide problems come first, so fonts and colours get fixed once in your tokens. Each approved component follows with its CSS selector, its HTML from before the preview, and the instruction for every rule you checked. Paste it into Claude Code, Cursor or any agent that edits your files.
 
@@ -16,14 +16,14 @@ Yba is a Chrome extension that finds what makes a page look AI-made. It checks t
 
 | Group | Rules |
 |---|---|
-| Content | remove filler badges, remove repeated labels, make headlines specific\*, rewrite AI-sounding text\*, make button text specific\*, remove long dashes, show the real product\* |
+| Content | remove filler badges, remove repeated labels, make headlines specific\*, rewrite AI-sounding text\*, make button text specific\*, remove long dashes, show the real product\*, answer real questions in the FAQ\*, back up the logo bar\* |
 | Typography | replace overused AI fonts, remove random italics, use code-style font only for code, make headings stand out, fix awkward line breaks, line up numbers, fine-tune alignment |
 | Layout | use consistent sizes, make the main thing bigger, use space instead of lines, remove boxes inside boxes, line up side-by-side text, match rounded corners |
 | Colour & detail | make one main button stand out, use one brand colour, soften pure black and white, make faint text readable, make icons match, remove glows and heavy shadows |
-| Accessibility | make buttons easy to tap, describe images\*, name icon-only buttons\*, stop images shifting the page\* |
+| Accessibility | make buttons easy to tap, describe images\*, name icon-only buttons\*, stop images shifting the page\*, fix links that go nowhere\*, use real buttons\*, show a hand cursor on controls, label every form field\*, keep heading levels in order\* |
 | Responsive | shrink big pictures on phones\*, stop sideways scrolling, make small text bigger |
-| Banned patterns | remove side stripes, thin out heavy borders, remove rainbow text, rethink big-number stats\*, vary repeated cards\* |
-| Behaviour | show loading progress\*, use helpful animation |
+| Banned patterns | remove side stripes, thin out heavy borders, remove rainbow text, rethink big-number stats\*, vary repeated cards\*, remove background grids, drop arrows from buttons, remove decorative status dots, drop fake terminal windows\* |
+| Behaviour | show loading progress\*, use helpful animation, load the main image first\* |
 
 Rules marked \* need new words or new assets, so Yba outlines the spot in red with a short note and leaves the rewrite to your agent. The rest preview live.
 

@@ -906,7 +906,7 @@
     },
     {
       id: 'copytells', label: 'Rewrite AI-sounding text', hint: 'Phrases like “It’s not X, it’s Y” or “Unlock the power of”',
-      agent: 'Rewrite copy that reads as machine-written, keeping every fact. Remove: contrasts that only add weight ("it\'s not X, it\'s Y", "not just X but Y", a clipped ", no guessing" tail); negation lists ("no setup, no fees, no waiting"); self-answered reveals ("The result?", "The best part:"); one-line closers ("That\'s the real win", "Let that sink in"); sayings that sound deep ("at its core", "what really matters"); staged run-ups ("Let\'s dive in", "Here\'s the thing"); arguing with no one ("To be clear", "Don\'t get me wrong"); inflated significance ("plays a pivotal role", "stands as a testament"); sales words ("nestled", "breathtaking", "stunning"); "serves as" or "boasts" where "is" or "has" works; stock AI words (delve, tapestry, showcase, underscore, seamless, unlock); Title Case headings; a bold label on every list item; chatbot leftovers ("I hope this helps"); and exclamation points. Say what the product does, with a number, a name or a concrete step. Never invent stats or testimonials.',
+      agent: 'Rewrite copy that reads as machine-written, keeping every fact. Remove: contrasts that only add weight ("it\'s not X, it\'s Y", "not just X but Y", a clipped ", no guessing" tail); negation lists ("no setup, no fees, no waiting"); self-answered reveals ("The result?", "The best part:"); one-line closers ("That\'s the real win", "Let that sink in"); sayings that sound deep ("at its core", "what really matters"); staged run-ups ("Let\'s dive in", "Here\'s the thing"); arguing with no one ("To be clear", "Don\'t get me wrong"); inflated significance ("plays a pivotal role", "stands as a testament"); sales words ("nestled", "breathtaking", "stunning"); "serves as" or "boasts" where "is" or "has" works; stock AI words (delve, tapestry, showcase, underscore, seamless, unlock); Title Case headings; emoji in headings; ALL-CAPS words used for emphasis; a bold label on every list item; chatbot leftovers ("I hope this helps"); and exclamation points. Say what the product does, with a number, a name or a concrete step. Never invent stats or testimonials.',
       auto: 'mark',
       apply(root, c) {
         // Phrasing patterns common in AI-written copy, strongest first.
@@ -938,6 +938,9 @@
           const t = (el.innerText || '').trim(); if (t.length < 6) continue;
           const hit = TELLS.find(([re]) => re.test(t));
           if (hit) { flag(el, hit[1], t); continue; }
+          if (isHeading(el) && /\p{Extended_Pictographic}/u.test(t)) { flag(el, 'Emoji in a heading', t); continue; }
+          // Shouting in running text; textContent ignores CSS uppercase, so styled labels don't count.
+          if (!isHeading(el) && /\b[A-Z]{4,}[!.]?\s+[A-Z]{4,}\b/.test(el.textContent)) { flag(el, 'ALL-CAPS emphasis', t); continue; }
           // Title Case headings: four or more words, every significant word capitalised.
           if (isHeading(el)) {
             const ws = t.split(/\s+/).filter((w) => /^[A-Za-z]/.test(w) && !SMALL.test(w));
@@ -1136,13 +1139,259 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
         if (bounce) c.note(`Replaced ${bounce} bouncy animation${bounce > 1 ? 's' : ''} with a smooth one.`);
       },
     },
+    {
+      id: 'heroimg', label: 'Load the main image first', hint: 'The biggest picture on the first screen loads late',
+      agent: 'The largest image on the first screen is usually the LCP element. Put it in the HTML as an <img> (not a CSS background), remove loading="lazy" from it, and add fetchpriority="high". Keep lazy loading for images further down.',
+      auto: 'mark',
+      apply(root, c) {
+        let best = null, area = 0;
+        for (const el of all(root)) {
+          if (el.tagName !== 'IMG' || !visible(el)) continue;
+          const r = el.getBoundingClientRect();
+          if (r.top + scrollY >= innerHeight || r.width < 280) continue; // first screen only
+          if (r.width * r.height > area) { area = r.width * r.height; best = el; }
+        }
+        if (!best) { c.note('No large image on the first screen.'); return; }
+        const lazy = best.loading === 'lazy', prio = (best.getAttribute('fetchpriority') || '').toLowerCase() === 'high';
+        if (!lazy && prio) { c.note('The main image already loads first.'); return; }
+        c.mark(best, lazy ? 'Main image loads lazily' : 'Main image needs high priority');
+        c.note(`“${short((best.getAttribute('alt') || best.currentSrc || best.src || '').split('/').pop(), 28)}” ${lazy ? 'waits to load even though it’s on the first screen' : 'loads at normal priority'}`);
+      },
+    },
+    {
+      id: 'deadlinks', label: 'Fix links that go nowhere', hint: 'Links like href="#" that do nothing',
+      agent: 'Give every link a real destination: a page that exists, an id that exists on this page, or a mailto:/tel: address. Replace href="#", empty hrefs and javascript: links; if the element runs a script, make it a <button>. Remove nav items for pages that are not built yet, or label them "Coming soon".',
+      auto: 'mark',
+      apply(root, c) {
+        let n = 0;
+        for (const el of all(root)) {
+          if (el.tagName !== 'A' || !el.hasAttribute('href') || !visible(el)) continue;
+          const h = el.getAttribute('href').trim();
+          let why = null;
+          if (h === '' || h === '#') why = 'Link goes nowhere';
+          else if (/^javascript:/i.test(h)) why = 'Link runs a script · use a button';
+          else if (h.startsWith('#')) {
+            let id = h.slice(1); try { id = decodeURIComponent(id); } catch { /* keep raw */ }
+            // Hash routes (#/page, #!page) and #top are handled by the app or the browser.
+            if (!/^[/!]/.test(id) && id.toLowerCase() !== 'top' && !document.getElementById(id) && !document.getElementsByName(id).length) why = `Nothing called “${short(h, 20)}” on this page`;
+          }
+          if (!why) continue;
+          c.mark(el, why); n++;
+          if (n <= 4) c.note(`“${short((el.innerText || el.getAttribute('aria-label') || 'link').trim(), 24)}”: ${why.toLowerCase()}`);
+        }
+        if (!n) c.note('Every link goes somewhere.');
+        else if (n > 4) c.note(`…and ${n - 4} more.`);
+      },
+    },
+    {
+      id: 'fakebuttons', label: 'Use real buttons', hint: 'Clickable boxes that a keyboard can’t reach',
+      agent: 'Replace clickable <div>/<span> elements with native controls: <button> for actions, <a href> for navigation. If a custom element has to stay, give it a role, tabindex="0", a visible focus style, and Enter/Space key handlers.',
+      auto: 'mark',
+      apply(root, c) {
+        let n = 0;
+        for (const el of all(root)) {
+          if (el.matches(`${INTERACTIVE},label,[role],[tabindex],svg *`) || el.closest('a,button,label,summary,select,[role=button],[role=link]') || !visible(el)) continue;
+          const st = cs(el);
+          const scripted = el.hasAttribute('onclick');
+          // cursor inherits, so only count the element where the pointer is set, not its children.
+          const pointer = st.cursor === 'pointer' && (!el.parentElement || cs(el.parentElement).cursor !== 'pointer');
+          if (!scripted && !pointer) continue;
+          if (el.querySelector('a[href],button,input,select,textarea,summary,[role=button]')) continue; // a card wrapping a real link
+          c.mark(el, 'Clickable but not a real button'); n++;
+          if (n <= 4) c.note(`“${short(el.innerText || `<${el.tagName.toLowerCase()}>`, 24)}” acts like a button but isn’t one`);
+        }
+        if (!n) c.note('Clickable things are real buttons or links.');
+        else if (n > 4) c.note(`…and ${n - 4} more.`);
+      },
+    },
+    {
+      id: 'pointer', label: 'Show a hand cursor on controls', hint: 'Buttons that keep the arrow cursor',
+      agent: 'In the base CSS layer, give every enabled control cursor: pointer: a[href], button, summary, select, label[for], checkboxes, radios and custom role="button"/"tab"/"switch" elements. Give disabled controls cursor: not-allowed.',
+      auto: true,
+      apply(root, c) {
+        let n = 0;
+        for (const el of all(root)) {
+          if (!el.matches('a[href],button,summary,select,label[for],input[type=checkbox],input[type=radio],input[type=submit],input[type=button],input[type=reset],[role=button],[role=tab],[role=switch]') || !visible(el)) continue;
+          if (el.disabled || el.getAttribute('aria-disabled') === 'true') continue;
+          if (!/^(auto|default)$/.test(cs(el).cursor)) continue;
+          c.set(el, 'cursor', 'pointer'); n++;
+        }
+        c.note(n ? `Added a hand cursor to ${n} control${n > 1 ? 's' : ''}.` : 'Controls already show a hand cursor.');
+      },
+    },
+    {
+      id: 'fieldlabels', label: 'Label every form field', hint: 'Fields with only placeholder text, or nothing',
+      agent: 'Give every input, select and textarea a visible <label> tied to it with for/id (or wrapping it). Placeholder text disappears as soon as someone types, so it can hint at the format but never replace the label. Use aria-label only when the purpose is visually obvious, such as a search field next to a search button.',
+      auto: 'mark',
+      apply(root, c) {
+        let n = 0;
+        for (const el of all(root)) {
+          if (!el.matches('input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=reset]):not([type=image]),select,textarea') || !visible(el)) continue;
+          if (el.labels?.length || el.getAttribute('aria-label')?.trim() || el.getAttribute('aria-labelledby') || el.getAttribute('title')?.trim()) continue;
+          const ph = el.getAttribute('placeholder')?.trim();
+          c.mark(el, ph ? 'Placeholder isn’t a label' : 'Field has no label'); n++;
+          if (n <= 4) c.note(ph ? `“${short(ph, 24)}” is only placeholder text` : `A ${el.tagName === 'INPUT' ? (el.type || 'text') : el.tagName.toLowerCase()} field has no label`);
+        }
+        if (!n) c.note('Every field has a label.');
+        else if (n > 4) c.note(`…and ${n - 4} more.`);
+      },
+    },
+    {
+      id: 'headingorder', label: 'Keep heading levels in order', hint: 'Headings that skip levels, like h2 straight to h4',
+      agent: 'Use one h1 per page and step heading levels down one at a time (h1 → h2 → h3). Pick the level for the outline, then style it with CSS; never choose h4 because it looks the right size.',
+      auto: 'mark',
+      apply(root, c) {
+        const hs = all(root).filter((el) => /^H[1-6]$/.test(el.tagName) && visible(el) && el.textContent.trim());
+        const page = root === document.body;
+        let prev = null, h1s = 0, n = 0;
+        for (const h of hs) {
+          const lv = +h.tagName[1];
+          if (lv === 1 && ++h1s > 1 && page) { c.mark(h, 'A second h1'); n++; if (n <= 4) c.note(`“${short(h.textContent, 26)}” is a second h1`); }
+          const from = prev ?? (page ? 0 : null);
+          if (from !== null && lv > from + 1) { c.mark(h, `Jumps from ${from ? 'h' + from : 'the top'} to h${lv}`); n++; if (n <= 4) c.note(`“${short(h.textContent, 26)}” skips from ${from ? 'h' + from : 'the start'} to h${lv}`); }
+          prev = lv;
+        }
+        if (!hs.length) c.note('No headings here.');
+        else if (!n) c.note('Heading levels are in order.');
+        else if (n > 4) c.note(`…and ${n - 4} more.`);
+      },
+    },
+    {
+      id: 'faq', label: 'Answer real questions in the FAQ', hint: 'Template questions like “Can I cancel anytime?”',
+      agent: 'Rewrite FAQ entries so each one answers something real users of this product ask (from support tickets, sales calls or reviews). Remove template questions that fit any SaaS page ("Is my data secure?", "Can I cancel anytime?", "Do you offer a free trial?") unless the answer says something specific to this product. No FAQ is better than a generic one.',
+      auto: 'mark',
+      apply(root, c) {
+        const GENERIC = /^(is my data (safe|secure)|how secure is (my data|it)|can i cancel( (at )?any ?time)?|do you offer (a )?(free trial|refunds?|discounts?|support)|is there a free (trial|plan|version)|do i need a credit card|what payment methods do you accept|what is your refund policy|can i (upgrade|downgrade|change) (my )?plan|how do i get started|what makes [\w\s]{1,30} different|who is [\w\s]{1,30} for|is [\w\s]{1,30} right for me|how does [\w\s]{1,30} work)\??$/i;
+        let n = 0;
+        for (const el of all(root)) {
+          if (!el.matches('summary,dt,h2,h3,h4,h5,h6,button[aria-expanded]') || !visible(el)) continue;
+          const t = (el.innerText || '').replace(/\s+/g, ' ').trim();
+          if (!GENERIC.test(t)) continue;
+          c.mark(el, 'Template FAQ question'); n++;
+          if (n <= 4) c.note(`“${short(t, 40)}” could be on any site`);
+        }
+        if (!n) c.note('No template FAQ questions found.');
+      },
+    },
+    {
+      id: 'logobar', label: 'Back up the logo bar', hint: '“Trusted by” rows of company logos',
+      agent: 'Remove "Trusted by" / "Used by teams at" logo rows unless every company shown really uses the product and agreed to be named. One real quote with a name and role, or a link to a public case study, says more than a strip of logos.',
+      auto: 'mark',
+      apply(root, c) {
+        const LEAD = /^(trusted|used|loved|chosen|backed|relied on|powering|built) (by|at|for)\b|^(join|over|more than) [\d,.]+k?\+? (teams|companies|businesses|developers|customers)/i;
+        let n = 0; const done = new Set();
+        for (const el of all(root)) {
+          const t = (ownText(el) || (el.children.length ? '' : el.textContent)).trim();
+          if (!t || t.length > 80 || !LEAD.test(t) || !visible(el)) continue;
+          // The logos are the next sibling, or siblings, of the lead-in, possibly one level up.
+          for (let box = el.parentElement, depth = 0; box && box !== document.body && depth < 3; box = box.parentElement, depth++) {
+            const logos = [...box.querySelectorAll('img,svg')].filter((m) => !m.parentElement.closest('svg') && visible(m) && m.getBoundingClientRect().height <= 80);
+            if (logos.length < 3) continue;
+            if (!done.has(box)) { done.add(box); c.mark(box, 'Logo bar · use real proof'); n++; c.note(`“${short(t, 30)}” above ${logos.length} logos`); }
+            break;
+          }
+        }
+        if (!n) c.note('No “Trusted by” logo bars found.');
+      },
+    },
+    {
+      id: 'arrows', label: 'Drop arrows from buttons', hint: 'An arrow on almost every button',
+      agent: 'Remove arrow glyphs and arrow icons (→, ↗, chevrons) from buttons where they are decoration. Keep one where it means something: ↗ on a link that leaves the site, or a single primary action that moves the visitor forward.',
+      auto: true,
+      apply(root, c) {
+        const ARROW = /[→↗➔➜⟶↘⇢]/;
+        const iconArrow = (el) => [...el.querySelectorAll('svg')].find((s) => /arrow|chevron/i.test((s.getAttribute('class') || '') + ' ' + (s.getAttribute('data-icon') || '') + ' ' + (s.parentElement?.getAttribute('class') || '')));
+        const buttons = all(root).filter(isActionButton);
+        const hits = buttons.filter((b) => ARROW.test(b.textContent) || iconArrow(b));
+        // One arrow can be a deliberate signal; it is a habit when most buttons carry one.
+        if (hits.length < 3 || hits.length < buttons.length / 2) { c.note(hits.length ? 'Arrows are used sparingly.' : 'No arrows on buttons.'); return; }
+        for (const b of hits) {
+          const walker = document.createTreeWalker(b, NodeFilter.SHOW_TEXT);
+          for (let node = walker.nextNode(); node; node = walker.nextNode()) if (ARROW.test(node.nodeValue)) c.text(node, node.nodeValue.replace(/\s*[→↗➔➜⟶↘⇢]+/g, ''));
+          const svg = iconArrow(b); if (svg) c.hide(svg);
+        }
+        c.note(`Removed arrows from ${hits.length} of ${buttons.length} buttons.`);
+      },
+    },
+    {
+      id: 'statusdot', label: 'Remove decorative status dots', hint: 'Small glowing dots inside tags and labels',
+      agent: 'Remove small coloured dots placed inside badges, pills and labels as decoration (often pulsing). Keep a dot only when it reports a real, changing state, such as online/offline or a build status, and give that state a text label too.',
+      auto: true,
+      apply(root, c) {
+        let n = 0;
+        for (const el of all(root)) {
+          if (el.children.length || el.textContent.trim() || !visible(el)) continue;
+          const r = el.getBoundingClientRect(), st = cs(el);
+          if (r.width < 4 || r.width > 14 || Math.abs(r.width - r.height) > 1 || radiusPx(el, st) < r.width / 2 - 1) continue;
+          if (rgba(st.backgroundColor).a < 0.5 && !/gradient/.test(st.backgroundImage)) continue;
+          const host = el.parentElement; if (!host || host.closest('[role=status],[aria-live]')) continue;
+          const hr = host.getBoundingClientRect(), ht = host.textContent.trim();
+          const inPill = hr.height <= 40 && ht.length > 0 && ht.length <= 40;
+          const pulsing = st.animationName !== 'none' || cs(el, '::after').animationName !== 'none' || cs(el, '::before').animationName !== 'none';
+          if (!inPill && !pulsing) continue;
+          c.hide(el); n++;
+          if (n <= 3) c.note(`Removed the dot next to “${short(ht || 'label', 24)}”`);
+        }
+        if (!n) c.note('No decorative dots found.');
+        else if (n > 3) c.note(`…and ${n - 3} more.`);
+      },
+    },
+    {
+      id: 'terminal', label: 'Drop fake terminal windows', hint: 'Window frames with red, yellow and green dots',
+      agent: 'Replace decorative terminal or app windows (three traffic-light dots over typed-out commands) with the real thing: a screenshot or short recording of the product, or, for a CLI, a plain code block holding the actual command and its real output.',
+      auto: 'mark',
+      apply(root, c) {
+        const isDot = (el) => {
+          const r = el.getBoundingClientRect();
+          return !el.textContent.trim() && r.width >= 6 && r.width <= 18 && Math.abs(r.width - r.height) <= 1 && radiusPx(el) >= r.width / 2 - 1;
+        };
+        const hue = (el) => { const v = rgba(cs(el).backgroundColor); if (v.a < 0.5) return null; const { r, g, b } = v;
+          return r > 190 && g < 140 && b < 140 ? 'red' : r > 190 && g > 140 && b < 120 ? 'yellow' : g > 150 && r < 140 && b < 140 ? 'green' : null; };
+        let n = 0; const done = new Set();
+        for (const row of all(root)) {
+          const dots = [...row.children].filter(isDot);
+          if (dots.length < 3) continue;
+          const hues = new Set(dots.map(hue));
+          if (!(hues.has('red') && hues.has('yellow') && hues.has('green'))) continue;
+          // The window is the nearest ancestor that holds content beyond the dot row.
+          let win = row.parentElement;
+          for (let i = 0; win && win !== document.body && i < 3 && (win.innerText || '').trim().length < 8; i++) win = win.parentElement;
+          if (!win || win === document.body || done.has(win)) continue;
+          done.add(win); c.mark(win, 'Fake window · show the real product'); n++;
+          c.note(`A fake window frame around “${short(win.innerText || 'content', 30)}”`);
+        }
+        if (!n) c.note('No fake terminal windows found.');
+      },
+    },
+    {
+      id: 'bggrid', label: 'Remove background grids', hint: 'Graph-paper lines or dot patterns behind content',
+      agent: 'Remove decorative background grids, graph-paper lines and dot patterns (small repeating gradients behind sections). Keep a texture only when it is part of the brand and say why in a code comment; otherwise let colour and spacing carry the section.',
+      auto: true,
+      apply(root, c) {
+        let n = 0;
+        for (const el of all(root)) {
+          const st = cs(el);
+          if (!/gradient/.test(st.backgroundImage) || /url\(/.test(st.backgroundImage) || isLegibilityOverlay(el)) continue;
+          const r = el.getBoundingClientRect(); if (r.width < 200 || r.height < 120) continue;
+          const tiles = (st.backgroundSize.match(/[\d.]+px/g) || []).map(px);
+          const tiled = tiles.length && Math.max(...tiles) <= 96 && !/no-repeat/.test(st.backgroundRepeat);
+          const stripes = /repeating-(linear|radial)-gradient/.test(st.backgroundImage);
+          if (!tiled && !stripes) continue;
+          c.set(el, 'background-image', 'none'); n++;
+          if (n <= 3) c.note(`Removed the pattern behind “${short(el.innerText || 'a section', 24)}”`);
+        }
+        if (!n) c.note('No background grids found.');
+        else if (n > 3) c.note(`…and ${n - 3} more.`);
+      },
+    },
   ];
   const RULE = Object.fromEntries(RULES.map((r) => [r.id, r]));
 
   // ───────────────────────── full-page scan ─────────────────────────
   // Runs detection-worthy rules in dry-run mode over <body>: nothing changes, every target element is recorded.
   const SCAN_RULES = ['fonts', 'gradtext', 'badges', 'labels', 'headlines', 'copytells', 'weakcta', 'emdash', 'targets', 'alt', 'iconlabels', 'mediaspace', 'italics', 'mono', 'scale', 'accent', 'neutrals', 'contrast',
-    'stripes', 'heavyborder', 'nest', 'toprow', 'mobilefit', 'hscroll', 'smalltext', 'heroMetric', 'cardGrid', 'embellish', 'icons', 'radius', 'motion'];
+    'stripes', 'heavyborder', 'nest', 'toprow', 'mobilefit', 'hscroll', 'smalltext', 'heroMetric', 'cardGrid', 'embellish', 'icons', 'radius', 'motion',
+    'faq', 'logobar', 'deadlinks', 'fakebuttons', 'pointer', 'fieldlabels', 'headingorder', 'bggrid', 'arrows', 'statusdot', 'terminal', 'heroimg'];
   let scanResult = null, scanning = false;
 
   async function runScan(onProgress) {
@@ -1207,6 +1456,10 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
     [/^“(.+)” sat lower than its heading\. Lined them up\.$/, '“$1” sits lower than its heading'],
     [/^Lined up the digits in (\d+) numbers?\./, '$1 numbers don’t line up'],
     [/^Removed (\d+) divider lines?/, '$1 divider lines'],
+    [/^Added a hand cursor to (\d+) controls?\./, '$1 controls without a hand cursor'],
+    [/^Removed arrows from (\d+) of (\d+) buttons\./, 'Arrows on $1 of $2 buttons'],
+    [/^Removed the dot next to “(.+)”$/, 'Decorative dot next to “$1”'],
+    [/^Removed the pattern behind “(.+)”$/, 'Background pattern behind “$1”'],
   ];
   const scanNote = (t) => SCAN_PHRASES.reduce((acc, [re, to]) => acc.replace(re, to), t);
 
@@ -1332,14 +1585,14 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
 
   // Popover grouping (display only; report keeps RULES order).
   const GROUPS = [
-    ['Content', ['badges', 'labels', 'headlines', 'copytells', 'weakcta', 'emdash', 'product']],
+    ['Content', ['badges', 'labels', 'headlines', 'copytells', 'weakcta', 'emdash', 'product', 'faq', 'logobar']],
     ['Typography', ['fonts', 'italics', 'mono', 'scale', 'wrap', 'tabular', 'optical']],
     ['Layout', ['system', 'enlarge', 'group', 'nest', 'toprow', 'radius']],
     ['Colour & detail', ['cta', 'accent', 'neutrals', 'contrast', 'icons', 'embellish']],
-    ['Accessibility', ['targets', 'alt', 'iconlabels', 'mediaspace']],
+    ['Accessibility', ['targets', 'alt', 'iconlabels', 'mediaspace', 'deadlinks', 'fakebuttons', 'pointer', 'fieldlabels', 'headingorder']],
     ['Responsive', ['mobilefit', 'hscroll', 'smalltext']],
-    ['Banned patterns', ['stripes', 'heavyborder', 'gradtext', 'heroMetric', 'cardGrid']],
-    ['Behaviour', ['loading', 'motion']],
+    ['Banned patterns', ['stripes', 'heavyborder', 'gradtext', 'heroMetric', 'cardGrid', 'bggrid', 'arrows', 'statusdot', 'terminal']],
+    ['Behaviour', ['loading', 'motion', 'heroimg']],
   ];
   // Colour coding: one hue per group at the same lightness and chroma, so groups read as equals.
   const GROUP_COLOR = {

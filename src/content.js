@@ -28,14 +28,14 @@ export const rules = {
   title: 'What Yba checks on your page',
   intro: "The rules come from impeccable's design laws, published lists of AI-default fonts, the phrasing patterns common in AI-written copy, and WCAG 2.2.",
   groups: [
-    ['Content', [['Remove filler badges'], ['Remove repeated labels'], ['Make headlines specific'], ['Rewrite AI-sounding text'], ['Make button text specific'], ['Remove long dashes'], ['Show the real product']]],
+    ['Content', [['Remove filler badges'], ['Remove repeated labels'], ['Make headlines specific'], ['Rewrite AI-sounding text'], ['Make button text specific'], ['Remove long dashes'], ['Show the real product'], ['Answer real questions in the FAQ'], ['Back up the logo bar']]],
     ['Typography', [['Replace overused AI fonts'], ['Remove random italics'], ['Use code-style font only for code'], ['Make headings stand out'], ['Fix awkward line breaks'], ['Line up numbers'], ['Fine-tune alignment']]],
     ['Layout', [['Use consistent sizes'], ['Make the main thing bigger'], ['Use space instead of lines'], ['Remove boxes inside boxes'], ['Line up side-by-side text'], ['Match rounded corners']]],
     ['Colour & detail', [['Make one main button stand out'], ['Use one brand colour'], ['Soften pure black and white'], ['Make faint text readable'], ['Make icons match'], ['Remove glows and heavy shadows']]],
-    ['Accessibility', [['Make buttons easy to tap'], ['Describe images'], ['Name icon-only buttons'], ['Stop images shifting the page']]],
+    ['Accessibility', [['Make buttons easy to tap'], ['Describe images'], ['Name icon-only buttons'], ['Stop images shifting the page'], ['Fix links that go nowhere'], ['Use real buttons'], ['Show a hand cursor on controls'], ['Label every form field'], ['Keep heading levels in order']]],
     ['Responsive', [['Shrink big pictures on phones'], ['Stop sideways scrolling'], ['Make small text bigger']]],
-    ['Banned patterns', [['Remove side stripes'], ['Thin out heavy borders'], ['Remove rainbow text'], ['Rethink big-number stats'], ['Vary repeated cards']]],
-    ['Behaviour', [['Show loading progress'], ['Use helpful animation']]],
+    ['Banned patterns', [['Remove side stripes'], ['Thin out heavy borders'], ['Remove rainbow text'], ['Rethink big-number stats'], ['Vary repeated cards'], ['Remove background grids'], ['Drop arrows from buttons'], ['Remove decorative status dots'], ['Drop fake terminal windows']]],
+    ['Behaviour', [['Show loading progress'], ['Use helpful animation'], ['Load the main image first']]],
   ],
 };
 
