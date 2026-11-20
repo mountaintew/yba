@@ -215,7 +215,7 @@
 
   const RULES = [
     {
-      id: 'badges', label: 'Remove filler badges', hint: 'Little tags like “New” or “✨ AI-powered” that add nothing',
+      id: 'badges', label: 'Remove filler badges', hint: 'Little tags like “New” or “AI-powered” that add nothing',
       agent: 'Remove decorative pill/badge elements that carry no real information (e.g. "New", "✨ AI-powered", "Beta", "Popular"). Keep a badge only if it reflects real state (e.g. an unread count).',
       auto: true,
       apply(root, c) {
@@ -1585,21 +1585,46 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
 
   // Popover grouping (display only; report keeps RULES order).
   const GROUPS = [
-    ['Content', ['badges', 'labels', 'headlines', 'copytells', 'weakcta', 'emdash', 'product', 'faq', 'logobar']],
+    ['Banned patterns', ['stripes', 'heavyborder', 'gradtext', 'heroMetric', 'cardGrid', 'bggrid', 'arrows', 'statusdot', 'terminal']],
     ['Typography', ['fonts', 'italics', 'mono', 'scale', 'wrap', 'tabular', 'optical']],
     ['Layout', ['system', 'enlarge', 'group', 'nest', 'toprow', 'radius']],
     ['Colour & detail', ['cta', 'accent', 'neutrals', 'contrast', 'icons', 'embellish']],
     ['Accessibility', ['targets', 'alt', 'iconlabels', 'mediaspace', 'deadlinks', 'fakebuttons', 'pointer', 'fieldlabels', 'headingorder']],
     ['Responsive', ['mobilefit', 'hscroll', 'smalltext']],
-    ['Banned patterns', ['stripes', 'heavyborder', 'gradtext', 'heroMetric', 'cardGrid', 'bggrid', 'arrows', 'statusdot', 'terminal']],
+    ['Content', ['badges', 'labels', 'headlines', 'copytells', 'weakcta', 'emdash', 'product', 'faq', 'logobar']],
     ['Behaviour', ['loading', 'motion', 'heroimg']],
   ];
-  // Colour coding: one hue per group at the same lightness and chroma, so groups read as equals.
-  const GROUP_COLOR = {
-    'Content': 'oklch(78% 0.11 35)', 'Typography': 'oklch(80% 0.11 85)', 'Layout': 'oklch(78% 0.11 150)',
-    'Colour & detail': 'oklch(76% 0.11 305)', 'Accessibility': 'oklch(78% 0.10 235)', 'Responsive': 'oklch(78% 0.10 195)',
-    'Banned patterns': 'oklch(74% 0.12 10)', 'Behaviour': 'oklch(80% 0.11 120)',
+  // Colour coding from the design board: c = fill, e = darker bottom edge, k = deep shade of the same hue for text on light fills.
+  const GROUP_TONE = {
+    'Banned patterns': { c: '#FF5B45', e: '#A02B19', k: '#6B1A0E' },
+    'Typography': { c: '#FF9100', e: '#D65601', k: '#6B2E00' },
+    'Layout': { c: '#448F72', e: '#194350', k: '#123A30' },
+    'Colour & detail': { c: '#BBE0EF', e: '#7FABBE', k: '#1F4A5C' },
+    'Accessibility': { c: '#FF8882', e: '#E16963', k: '#6E1C18' },
+    'Responsive': { c: '#FFD749', e: '#F6B832', k: '#6B4A00' },
+    'Content': { c: '#00B7CD', e: '#01899A', k: '#00434D' },
+    'Behaviour': { c: '#802C62', e: '#421454', k: '#3A0E2C' },
   };
+  const GROUP_COLOR = Object.fromEntries(Object.entries(GROUP_TONE).map(([g, t]) => [g, t.c]));
+  // WCAG contrast ratio between two hex colours.
+  const toneLum = (h) => { const v = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4)); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+  const toneRatio = (a, b) => { const [x, y] = [toneLum(a), toneLum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+  // Per-group CSS variables. Header and chip text stays white at 3:1 or better (large bold text), otherwise it takes the group's deep shade.
+  const toneVars = (name) => { const { c, e, k } = GROUP_TONE[name]; return `--g:${c};--c:${c};--e:${e};--k:${k};--on:${toneRatio('#FFFFFF', c) >= 3 ? '#fff' : k};--t:color-mix(in srgb, ${c} 38%, white)`; };
+  // Group icons: inline SVG paths from Lucide (ISC licence), so no icon library loads.
+  const GROUP_ICON = {
+    'Banned patterns': '<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
+    'Typography': '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
+    'Layout': '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+    'Colour & detail': '<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
+    'Accessibility': '<circle cx="16" cy="4" r="1"/><path d="m18 19 1-7-6 1"/><path d="m5 8 3-3 5.5 3-2.36 3.5"/><path d="M4.24 14.5a5 5 0 0 0 6.88 6"/><path d="M13.76 17.5a5 5 0 0 0-6.88-6"/>',
+    'Responsive': '<rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/>',
+    'Content': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8"/>',
+    'Behaviour': '<path d="m9 9 5 12 1.8-5.2L21 14Z"/><path d="M7.2 2.2 8 5.1M5.1 8l-2.9-.8M14 4.1 12 6M6 12l-1.9 2"/>',
+  };
+  const groupIcon = (name) => `<svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${GROUP_ICON[name]}</svg>`;
+  // Collapsed groups in the rules panel. Every group starts collapsed.
+  const shut = new Set(GROUPS.map((_, gi) => gi));
   const RULE_COLOR = Object.fromEntries(GROUPS.flatMap(([g, ids]) => ids.map((id) => [id, GROUP_COLOR[g]])));
 
   shadow.innerHTML = `
@@ -1668,42 +1693,86 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
   .sw[aria-checked=true]::after { transform: translateX(14px); }
   .sw:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
   .sw[disabled] { opacity: .4; pointer-events: none; }
-  /* Group colour coding: --g is set per group. Tinted header, coloured checkboxes and notes; no stripes or boxed sections. */
-  /* Chip row scrolls sideways: same thin scrollbar as the list, plus drag-to-slide and wheel-to-scroll (see JS). */
-  .gchips { display: flex; flex-shrink: 0; gap: 6px; overflow-x: auto; padding: 0 var(--pad) 6px; margin-bottom: 4px; overscroll-behavior-x: contain;
+  /* Rules panel, chunky style: each group colour is a raised pill with a darker bottom edge drawn as a hard shadow.
+     Per-group variables come from toneVars(): --c fill, --e edge, --k deep text shade, --on header text, --t light tint for rule cards. */
+  .pop { font-family: ui-rounded, "SF Pro Rounded", "Nunito", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .chunk { --edge: 4px; background: var(--c); box-shadow: 0 var(--edge) 0 var(--e); border-radius: 10px; color: var(--on, #fff);
+           transition: transform .08s ease-out, box-shadow .08s ease-out, filter .12s; }
+  .chunk:hover { filter: brightness(1.05); }
+  .chunk:active { transform: translateY(var(--edge)); box-shadow: 0 0 0 var(--e); }
+  /* Side insets: 14px everywhere. The list keeps scrollbar space on both sides (see renderList), so the cards stay centred. */
+  .pop .cmp { margin: 0 14px 12px; }
+  .pop .list { padding-bottom: 12px; scrollbar-gutter: stable both-edges; }
+  /* Chip row scrolls sideways: thin scrollbar, drag to slide, mouse wheel scrolls it (see JS). Open hand on the row, pointing hand on a chip. */
+  .gchips { display: flex; flex-shrink: 0; gap: 8px; overflow-x: auto; padding: 0 14px 8px; margin-bottom: 6px; scroll-padding-inline: 14px; overscroll-behavior-x: contain;
             scrollbar-width: thin; scrollbar-color: var(--dim) transparent; cursor: grab; user-select: none; }
   .gchips:hover { scrollbar-color: var(--mute) transparent; }
   .gchips.drag, .gchips.drag .gchip { cursor: grabbing; }
-  .gchip { cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; font-size: 12px; color: var(--mute);
-           background: color-mix(in oklch, var(--g) 10%, transparent); transition: background-color .15s, color .15s; }
-  .gchip::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--g); }
-  .gchip:hover, .gchip.on { color: var(--fg); background: color-mix(in oklch, var(--g) 22%, transparent); }
-  .grp + .grp { margin-top: 10px; }
-  .gh { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; font-size: 12px; font-weight: 600; color: var(--fg); padding: 7px 10px; border-radius: var(--r-inner);
-        background: color-mix(in oklch, var(--g) 14%, transparent); cursor: pointer; user-select: none; transition: background-color .15s; }
-  .gh:hover { background: color-mix(in oklch, var(--g) 22%, transparent); }
-  .gh .gdot { width: 8px; height: 8px; border-radius: 50%; background: var(--g); flex-shrink: 0; }
-  .all { display: flex; align-items: center; gap: 12px; margin: 0 0 8px; padding: 8px 10px; border-radius: var(--r-inner); font-weight: 600; cursor: pointer; user-select: none; }
+  .gchip { --edge: 3px; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; margin-bottom: var(--edge);
+           border-radius: 8px; font-size: 12px; font-weight: 800; opacity: .55; }
+  .gchip.on { opacity: 1; }
+  .gi { width: 16px; height: 16px; flex-shrink: 0; }
+  .gchip .gi { width: 14px; height: 14px; }
+  /* Title Case for rule titles, group headers and chips. */
+  .lbl, .gh, .gchip { text-transform: capitalize; }
+  /* Trim the text box to the capital letters so words, icon, checkbox and chevron share one optical centre. */
+  .gh .gn, .gchip { line-height: 1; text-box: trim-both cap alphabetic; }
+
+  .grp + .grp { margin-top: 18px; }
+  .gh { display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; height: 42px; margin-bottom: calc(var(--edge) + 6px);
+        font-size: 16px; font-weight: 900; letter-spacing: .01em; user-select: none;
+        transition: margin-bottom .28s cubic-bezier(.16,1,.3,1), transform .08s ease-out, box-shadow .08s ease-out, filter .12s; }
+  .gh .gn { display: inline-flex; align-items: center; gap: 8px; pointer-events: none; }
+  /* The whole header bar opens and closes its rules. The checkbox and chevron sit on top at each end. */
+  .gh .fold { position: absolute; inset: 0; border-radius: inherit; }
+  .gh .fold:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .gh input { position: absolute; left: 12px; top: 50%; translate: 0 -50%; z-index: 1; }
+  .gh .chev { position: absolute; right: 12px; top: 50%; width: 16px; height: 16px; translate: 0 -50%; pointer-events: none; transition: rotate .18s cubic-bezier(.16,1,.3,1); }
+  .grp.shut .gh .chev { rotate: -90deg; }
+  .grp.shut .gh { margin-bottom: var(--edge); }
+  /* Smooth collapse: the rule area animates its grid row between 0fr and 1fr, so it eases to the real content height.
+     Clipping stops at the top of the area, so the rules never cover the header's bottom edge while they slide up under it. */
+  .body { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .28s cubic-bezier(.16,1,.3,1); }
+  .body > div { min-height: 0; overflow: clip; opacity: 1; translate: 0 0; transition: opacity .2s ease-out, translate .28s cubic-bezier(.16,1,.3,1), visibility 0s; }
+  .grp.shut .body { grid-template-rows: 0fr; }
+  .grp.shut .body > div { opacity: 0; translate: 0 -6px; visibility: hidden; transition: opacity .12s ease-out, translate .28s cubic-bezier(.16,1,.3,1), visibility 0s .28s; }
+
+  .all { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding: 8px 10px; border-radius: var(--r-inner); font-weight: 800; cursor: pointer; user-select: none; }
   .all:hover { background: rgba(255,255,255,.05); }
-  .gh input, .all input { appearance: none; width: 16px; height: 16px; margin: 0; flex-shrink: 0; border: 1.5px solid var(--dim); border-radius: 4px; display: grid; place-content: center; cursor: pointer; transition: background-color .12s, border-color .12s; outline: none; }
-  .gh input:checked, .all input:checked, .gh input:indeterminate, .all input:indeterminate { background: var(--acc); border-color: var(--acc); }
-  .gh input:checked, .gh input:indeterminate { background: var(--g); border-color: var(--g); }
-  .gh input:checked::after, .all input:checked::after { content: ''; width: 8px; height: 4px; border: 2px solid var(--on-acc); border-top: 0; border-right: 0; transform: translate(0,-1px) rotate(-45deg); }
-  .gh input:indeterminate::after, .all input:indeterminate::after { content: ''; width: 8px; height: 2px; background: var(--on-acc); border-radius: 1px; }
-  .gh:has(input:focus-visible), .all:has(input:focus-visible) { outline: 2px solid var(--acc); outline-offset: 2px; }
-  .row { display: grid; grid-template-columns: 16px 1fr; gap: 2px 12px; align-items: start; padding: 8px 10px; border-radius: var(--r-inner); cursor: pointer; user-select: none; transition: background-color .12s; }
-  .row:hover { background: rgba(255,255,255,.05); }
-  .row input { appearance: none; width: 16px; height: 16px; margin: 2px 0 0; border: 1.5px solid var(--dim); border-radius: 4px; display: grid; place-content: center; cursor: pointer; transition: background-color .12s, border-color .12s; outline: none; }
-  .row input:checked { background: var(--g, var(--acc)); border-color: var(--g, var(--acc)); }
-  .row input:checked::after { content: ''; width: 8px; height: 4px; border: 2px solid var(--on-acc); border-top: 0; border-right: 0; transform: translate(0,-1px) rotate(-45deg); }
-  .lbl { font-weight: 500; }
-  .hint { grid-column: 2; color: var(--mute); font-size: 12px; text-wrap: pretty; }
-  .agent { grid-column: 2; display: flex; align-items: center; gap: 6px; color: var(--mute); font-size: 12px; margin-top: 2px; }
-  .agent::before { content: ''; width: 10px; height: 10px; border: 1.5px dashed var(--red); border-radius: 2px; flex-shrink: 0; }
-  .notes { grid-column: 2; margin: 6px 0 0; padding: 6px 8px; list-style: none; font-size: 12px; color: var(--fg); background: color-mix(in oklch, var(--g, var(--acc)) 13%, transparent); border-radius: 4px; font-variant-numeric: tabular-nums; }
+  /* Rule cards: light tint of the group colour, same raised edge, text in the group's deep shade. */
+  .row { --edge: 3px; display: grid; grid-template-columns: 18px 1fr; gap: 2px 12px; align-items: start; padding: 10px 12px; margin-bottom: calc(var(--edge) + 6px);
+         background: var(--t); box-shadow: 0 var(--edge) 0 color-mix(in srgb, var(--c) 70%, var(--e)); border-radius: 10px; color: var(--k); cursor: pointer; user-select: none;
+         transition: transform .08s ease-out, box-shadow .08s ease-out; }
+  .row:active { transform: translateY(var(--edge)); box-shadow: 0 0 0 transparent; }
+  .row.on { background: color-mix(in srgb, var(--c) 55%, white); }
+  .lbl { font-weight: 800; }
+  .hint { grid-column: 2; font-size: 12px; font-weight: 600; opacity: .78; text-wrap: pretty; }
+  .agent { grid-column: 2; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; margin-top: 2px; opacity: .85; }
+  .agent::before { content: ''; width: 10px; height: 10px; border: 1.5px dashed #c0271a; border-radius: 2px; flex-shrink: 0; }
+  .notes { grid-column: 2; margin: 6px 0 0; padding: 6px 8px; list-style: none; font-size: 12px; font-weight: 600; color: inherit; background: rgba(255,255,255,.45); border-radius: 6px; font-variant-numeric: tabular-nums; }
   .notes li + li { margin-top: 2px; }
-  .pf { display: flex; gap: 8px; align-items: center; padding: 12px 12px 12px 16px; border-top: 1px solid var(--line); }
-  .pf .sp { flex: 1; color: var(--mute); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+  .gh input, .all input, .row input { appearance: none; width: 18px; height: 18px; margin: 0; flex-shrink: 0; border: 2px solid currentColor; border-radius: 5px; display: grid; place-content: center; cursor: pointer; opacity: .7; outline: none; transition: background-color .12s, border-color .12s; }
+  .row input { margin-top: 1px; }
+  .all input { color: var(--dim); }
+  .gh input { color: var(--on, #fff); }
+  .row input:checked { opacity: 1; background: var(--e); border-color: var(--e); }
+  .all input:checked, .all input:indeterminate { opacity: 1; background: var(--acc); border-color: var(--acc); }
+  .gh input:checked, .gh input:indeterminate { opacity: 1; background: var(--on, #fff); border-color: var(--on, #fff); }
+  .row input:checked::after, .all input:checked::after, .gh input:checked::after { content: ''; width: 9px; height: 4px; border: 2.5px solid #fff; border-top: 0; border-right: 0; transform: translate(0,-1px) rotate(-45deg); }
+  .all input:checked::after { border-color: var(--on-acc); }
+  .gh input:checked::after { border-color: var(--c); }
+  .all input:indeterminate::after, .gh input:indeterminate::after { content: ''; width: 8px; height: 2.5px; background: var(--on-acc); border-radius: 1px; }
+  .gh input:indeterminate::after { background: var(--c); }
+  .gh:has(input:focus-visible), .all:has(input:focus-visible) { outline: 2px solid var(--acc); outline-offset: 2px; }
+  /* Every footer item reserves the 4px button edge below it, so the label and both button faces share one centre line. */
+  .pf { display: flex; gap: 10px; align-items: center; padding: 12px 12px 12px 16px; border-top: 1px solid var(--line); }
+  .pf .sp { flex: 1; color: var(--mute); font-size: 12px; line-height: 1.35; text-wrap: balance; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+  .pf .btn.chunk { height: 36px; min-width: 88px; padding: 0 16px; justify-content: center; margin-bottom: var(--edge); font-size: 13px; font-weight: 800; line-height: 1; }
+  .pf .btn.chunk:hover { background: var(--c); }
+  .pf .reset { --c: oklch(36% 0.04 258); --e: oklch(28% 0.04 258); --on: var(--fg); }
+  .pf .approve { --c: #FF9100; --e: #D65601; --on: #fff; }
+  .pf .btn.chunk[disabled] { background: var(--c); color: var(--on); opacity: .45; }
 
   .drawer { position: fixed; top: 56px; right: 8px; width: 380px; max-height: calc(100vh - 72px); overflow-y: auto; display: none;
             background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-outer); box-shadow: 0 4px 16px rgba(0,0,0,.24); pointer-events: auto; padding: var(--pad); }
@@ -1753,7 +1822,7 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 8px); opacity: 0; background: var(--bg); border: 1px solid var(--line);
            padding: 8px 12px; border-radius: 8px; transition: opacity .16s, transform .16s; pointer-events: none; }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
-  @media (prefers-reduced-motion: reduce) { .bar, .btn, .row, .toast { transition: none; } .pop.open, .drawer.open { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .bar, .btn, .row, .toast, .chunk, .gh, .body, .body > div, .gh .chev { transition: none !important; } .pop.open, .drawer.open { animation: none; } }
 </style>
 <!-- Marks come first so the bar, rules panel and drawers paint over their tags. -->
 <div class="marks"></div>
@@ -1775,7 +1844,7 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
     <button class="sw" role="switch" aria-checked="true" aria-label="Show changes" data-act="compare"></button></div>
   <div class="gchips" role="navigation" aria-label="Jump to a rule group"></div>
   <div class="list"></div>
-  <div class="pf"><span class="sp"></span><button class="btn" data-act="reset">Reset</button><button class="btn primary" data-act="approve" disabled>Approve</button></div>
+  <div class="pf"><span class="sp"></span><button class="btn chunk reset" data-act="reset">Reset</button><button class="btn chunk approve" data-act="approve" disabled>Approve</button></div>
 </div>
 <div class="drawer"></div>
 <div class="drawer scan" role="region" aria-label="Page scan"></div>
@@ -1885,9 +1954,13 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
     const state = (ids) => { const on = ids.filter((id) => s.checked.has(id)).length; return on === 0 ? 'none' : on === ids.length ? 'all' : 'some'; };
     const allIds = RULES.map((r) => r.id);
     list.innerHTML = `<label class="all"><input type="checkbox" data-toggle="all" aria-label="Toggle all rules"${state(allIds) === 'all' ? ' checked' : ''}><span>All rules</span></label>`
-      + GROUPS.map(([name, ids], gi) => `<div class="grp" data-grp="${gi}" style="--g: ${GROUP_COLOR[name]}"><label class="gh"><input type="checkbox" data-toggle="${gi}" aria-label="Toggle all ${esc(name)} rules"${state(ids) === 'all' ? ' checked' : ''}><span class="gdot"></span><span>${name}</span></label>${ids.map((id) => row(RULE[id])).join('')}</div>`).join('');
+      + GROUPS.map(([name, ids], gi) => `<div class="grp${shut.has(gi) ? ' shut' : ''}" data-grp="${gi}" style="${toneVars(name)}">`
+        + `<div class="gh chunk"><button type="button" class="fold" data-fold="${gi}" aria-expanded="${!shut.has(gi)}" aria-label="${shut.has(gi) ? 'Show' : 'Hide'} ${esc(name)} rules"></button>`
+        + `<input type="checkbox" data-toggle="${gi}" aria-label="Toggle all ${esc(name)} rules"${state(ids) === 'all' ? ' checked' : ''}>`
+        + `<span class="gn">${groupIcon(name)}${esc(name)}</span><svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></div>`
+        + `<div class="body"><div>${ids.map((id) => row(RULE[id])).join('')}</div></div></div>`).join('');
     // Colour chips jump to a group; a group with checked rules shows its chip filled.
-    $('.gchips').innerHTML = GROUPS.map(([name, ids], gi) => `<button type="button" class="gchip${state(ids) !== 'none' ? ' on' : ''}" data-jump="${gi}" style="--g: ${GROUP_COLOR[name]}">${name}</button>`).join('');
+    $('.gchips').innerHTML = GROUPS.map(([name, ids], gi) => `<button type="button" class="gchip chunk${state(ids) !== 'none' ? ' on' : ''}" data-jump="${gi}" style="${toneVars(name)}">${groupIcon(name)}${esc(name)}</button>`).join('');
     // Partly-checked groups (and the All row) show a dash; indeterminate is a property, not an attribute.
     list.querySelector('[data-toggle="all"]').indeterminate = state(allIds) === 'some';
     GROUPS.forEach(([, ids], gi) => { list.querySelector(`[data-toggle="${gi}"]`).indeterminate = state(ids) === 'some'; });
@@ -1938,8 +2011,26 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
     if (dragged) { dragged = false; e.preventDefault(); return; }
     const chip = e.target.closest('[data-jump]'); if (!chip) return;
     const grp = list.querySelector(`[data-grp="${chip.dataset.jump}"]`); if (!grp) return;
+    setShut(+chip.dataset.jump, false); // a chip opens its group if it was collapsed
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     list.scrollTo({ top: grp.offsetTop - list.offsetTop - 4, behavior: reduce ? 'auto' : 'smooth' });
+  });
+
+  // The list keeps scrollbar space on both sides. Trim its side padding by that space, so cards sit 14px from each panel edge.
+  // Measured whenever the list changes size, because the panel is hidden (0px wide) the first time it renders.
+  const fitGutter = () => { if (!list.offsetWidth) return; const gut = (list.offsetWidth - list.clientWidth) / 2; list.style.paddingInline = `${Math.max(0, 14 - gut)}px`; };
+  new ResizeObserver(fitGutter).observe(list);
+  // Open or close a group by switching its class only. A full re-render would replace the markup and skip the animation.
+  function setShut(gi, close) {
+    close ? shut.add(gi) : shut.delete(gi);
+    const g = list.querySelector(`[data-grp="${gi}"]`); if (!g) return;
+    const b = g.querySelector('[data-fold]'), name = GROUPS[gi][0];
+    g.classList.toggle('shut', close);
+    b.setAttribute('aria-expanded', String(!close)); b.setAttribute('aria-label', `${close ? 'Show' : 'Hide'} ${name} rules`);
+  }
+  list.addEventListener('click', (e) => {
+    const f = e.target.closest('[data-fold]'); if (!f) return;
+    const gi = +f.dataset.fold; setShut(gi, !shut.has(gi));
   });
 
   list.addEventListener('change', (e) => {
