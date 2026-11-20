@@ -1625,6 +1625,7 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
   const groupIcon = (name) => `<svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${GROUP_ICON[name]}</svg>`;
   // Collapsed groups in the rules panel. Every group starts collapsed.
   const shut = new Set(GROUPS.map((_, gi) => gi));
+  const RULE_GROUP = Object.fromEntries(GROUPS.flatMap(([g, ids]) => ids.map((id) => [id, g])));
   const RULE_COLOR = Object.fromEntries(GROUPS.flatMap(([g, ids]) => ids.map((id) => [id, GROUP_COLOR[g]])));
 
   shadow.innerHTML = `
@@ -1634,7 +1635,7 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
           --dim: oklch(55% 0.03 258); --acc: oklch(69% 0.125 62); --acc-hi: oklch(75% 0.115 66); --acc-wash: oklch(69% 0.125 62 / .15); --on-acc: oklch(30% 0.045 55); --red: oklch(64% 0.19 28);
           --cobalt: oklch(49% 0.11 258);
           --r-outer:12px; --pad:6px; --r-inner:6px; }
-  .bar, .pop, .drawer, .toast { font: 13px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--fg); text-align: left; letter-spacing: normal; -webkit-font-smoothing: antialiased; }
+  .bar, .pop, .drawer, .toast { font: 13px/1.45 ui-rounded, "SF Pro Rounded", "Nunito", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--fg); text-align: left; letter-spacing: normal; -webkit-font-smoothing: antialiased; }
   * { box-sizing: border-box; }
   button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; margin: 0; }
   .i { width: 16px; height: 16px; flex-shrink: 0; display: block; }
@@ -1790,11 +1791,6 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
   .fnd { margin: 0 var(--pad); }
   .fnd + .fnd { margin-top: 2px; }
   .sdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--g); margin-right: 8px; vertical-align: 1px; }
-  .fnd summary { list-style: none; display: grid; grid-template-columns: 16px 1fr auto; gap: 0 10px; align-items: center; padding: 8px 10px; border-radius: var(--r-inner); cursor: pointer; }
-  .fnd summary::-webkit-details-marker { display: none; }
-  .fnd summary:hover { background: rgba(255,255,255,.05); }
-  .fnd summary .i { color: var(--mute); transition: transform .15s cubic-bezier(.16,1,.3,1); }
-  .fnd[open] summary .i { transform: rotate(90deg); }
   .fnd .n { font-variant-numeric: tabular-nums; color: var(--mute); font-size: 12px; min-width: 24px; text-align: right; }
   .fnd .sub { grid-column: 2 / 4; color: var(--mute); font-size: 12px; }
   .fnd ul { list-style: none; margin: 0 0 6px; padding: 0 0 0 26px; }
@@ -1822,6 +1818,65 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 8px); opacity: 0; background: var(--bg); border: 1px solid var(--line);
            padding: 8px 12px; border-radius: 8px; transition: opacity .16s, transform .16s; pointer-events: none; }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  /* Toolbar, raised-button style. Neutral buttons sit on a dark face with a darker edge; Copy for agent is the one orange button.
+     Inspect shows as pressed down (no edge, orange icon and text) while it is on. */
+  .bar { gap: 10px; }
+  .brand { font-weight: 800; font-size: 14px; }
+  .bar .btn:not(.icon) { --edge: 3px; --c: oklch(32% 0.04 258); --e: oklch(20% 0.035 258); height: 32px; margin-bottom: var(--edge); padding: 0 12px; border-radius: 9px;
+        background: var(--c); box-shadow: 0 var(--edge) 0 var(--e); font-weight: 800; transition: transform .08s ease-out, box-shadow .08s ease-out, filter .12s, color .15s; }
+  .bar .btn:not(.icon):hover { background: var(--c); filter: brightness(1.12); }
+  .bar .btn:not(.icon):active, .bar .toggle[aria-pressed=true] { transform: translateY(var(--edge)); box-shadow: 0 0 0 var(--e); }
+  .bar .toggle[aria-pressed=true] { --c: oklch(27% 0.04 258); color: #FF9100; }
+  .bar .btn.primary { --c: #FF9100; --e: #D65601; color: #fff; }
+  .bar .btn.primary.done { --c: #448F72; --e: #194350; color: #fff; }
+  .bar .btn[disabled] { opacity: .45; background: var(--c); color: #fff; }
+  .bar .count.zero { color: var(--mute); }
+  .bar .badge { height: 20px; min-width: 22px; line-height: 20px; border-radius: 10px; background: var(--bg); color: var(--fg); font-weight: 800; font-family: inherit; }
+  .bar .count.zero .badge { color: var(--dim); }
+  .bar .sep { height: 24px; margin: 0 2px 3px; }
+  .bar .btn.icon { margin-bottom: 3px; }
+
+  /* Scan panel, same style as the rules panel. */
+  .scan { padding: 0; }
+  .sh { padding: 16px 16px 12px; }
+  .sh b { font-size: 15px; font-weight: 800; }
+  .sh p { font-weight: 600; }
+  .prof { --edge: 3px; margin: 0 14px 16px; padding: 12px 14px; border-radius: 10px; background: oklch(28% 0.04 258); box-shadow: 0 var(--edge) 0 oklch(19% 0.035 258); font-weight: 600; }
+  .prof dt { font-weight: 700; }
+  .ft.slop { color: #FF9100; }
+  .ft.slop::after { color: #fff; background: #D65601; padding: 1px 6px; border-radius: 6px; font-weight: 800; }
+  .fnd { margin: 0 14px; }
+  .fnd + .fnd { margin-top: 10px; }
+  /* Finding card: light tint of the rule's group, raised edge, group icon on a tile in the full group colour. */
+  .fnd .fsum { --edge: 3px; display: grid; width: 100%; text-align: left; align-items: center; cursor: pointer; grid-template-columns: 28px 1fr auto 16px; gap: 2px 10px; padding: 10px 12px; border-radius: 10px; color: var(--k); background: var(--t);
+        box-shadow: 0 var(--edge) 0 color-mix(in srgb, var(--c) 70%, var(--e)); margin-bottom: var(--edge); user-select: none;
+        transition: transform .08s ease-out, box-shadow .08s ease-out, background-color .15s; }
+  .fnd .fsum:hover { background: color-mix(in srgb, var(--c) 48%, white); }
+  .fnd .fsum:active { transform: translateY(var(--edge)); box-shadow: 0 0 0 transparent; }
+  .fnd .fsum:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .fnd:not(.shut) .fsum { background: color-mix(in srgb, var(--c) 55%, white); }
+  .ftile { grid-row: 1 / 3; align-self: start; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; background: var(--c); color: var(--on); box-shadow: 0 2px 0 var(--e); }
+  .ftile .gi { width: 15px; height: 15px; }
+  .flbl { font-weight: 800; text-transform: capitalize; }
+  .fnd .n { min-width: 26px; height: 22px; padding: 0 7px; border-radius: 11px; display: grid; place-items: center; background: var(--c); color: var(--on); font-weight: 800; font-size: 12px; }
+  .fnd .chev { width: 16px; height: 16px; rotate: -90deg; transition: rotate .18s cubic-bezier(.16,1,.3,1); }
+  .fnd:not(.shut) .chev { rotate: 0deg; }
+  .fnd .sub { grid-column: 2 / 5; color: inherit; opacity: .78; font-weight: 600; }
+  /* Smooth open and close for each finding's element list: same 0fr to 1fr grid animation as the rule groups. */
+  .fbody { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .28s cubic-bezier(.16,1,.3,1); }
+  .fbody > div { min-height: 0; overflow: clip; opacity: 1; transition: opacity .2s ease-out, visibility 0s; }
+  .fnd.shut .fbody { grid-template-rows: 0fr; }
+  .fnd.shut .fbody > div { opacity: 0; visibility: hidden; transition: opacity .12s ease-out, visibility 0s .28s; }
+  .fnd ul { margin: 0; padding: 8px 0 4px 38px; }
+  .fnd li button { padding: 6px 10px; border-radius: 8px; font-weight: 600; }
+  .fnd li button:hover { background: color-mix(in srgb, var(--c) 22%, transparent); }
+  .fnd .more { font-weight: 600; }
+  .sf { margin-top: 16px; padding: 12px 16px; font-weight: 600; }
+  .scanning b { font-weight: 800 !important; }
+  .bar-track { height: 8px; border-radius: 4px; margin-top: 12px; }
+  .bar-track span { background: #FF9100; border-radius: 4px; }
+
+  @media (prefers-reduced-motion: reduce) { .fnd .fsum, .fnd .chev, .fbody, .fbody > div, .bar .btn { transition: none !important; } }
   @media (prefers-reduced-motion: reduce) { .bar, .btn, .row, .toast, .chunk, .gh, .body, .body > div, .gh .chev { transition: none !important; } .pop.open, .drawer.open { animation: none; } }
 </style>
 <!-- Marks come first so the bar, rules panel and drawers paint over their tags. -->
@@ -2130,12 +2185,14 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
         <dt>Effects</dt><dd>${p.gradients} gradient${p.gradients === 1 ? '' : 's'}, ${p.shadows} shadow${p.shadows === 1 ? '' : 's'}</dd>
       </dl>
       ${r.findings.map((f, fi) => `
-        <details class="fnd" data-fi="${fi}"${fi < 2 ? ' open' : ''}>
-          <summary>${icon('chev')}<span><span class="sdot" style="--g: ${RULE_COLOR[f.id]}"></span>${RULE[f.id].label}</span><span class="n">${f.els.length}</span>
-            <span class="sub">${esc(scanNote(f.notes.find((n) => !/^No |…and|^Preview/.test(n)) || RULE[f.id].hint))}</span></summary>
+        <div class="fnd shut" data-fi="${fi}" style="${toneVars(RULE_GROUP[f.id])}">
+          <button type="button" class="fsum" data-ftog="${fi}" aria-expanded="false"><span class="ftile" title="${esc(RULE_GROUP[f.id])}">${groupIcon(RULE_GROUP[f.id])}</span><span class="flbl">${RULE[f.id].label}</span><span class="n">${f.els.length}</span>
+            <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+            <span class="sub">${esc(scanNote(f.notes.find((n) => !/^No |…and|^Preview/.test(n)) || RULE[f.id].hint))}</span></button>
+          <div class="fbody"><div>
           <ul>${f.els.slice(0, 8).map((el, ei) => `<li><button data-fi="${fi}" data-ei="${ei}">${esc(niceName(el))}</button></li>`).join('')}
-          ${f.els.length > 8 ? `<li class="more">+${f.els.length - 8} more</li>` : ''}</ul>
-        </details>`).join('')}
+          ${f.els.length > 8 ? `<li class="more">+${f.els.length - 8} more</li>` : ''}</ul></div></div>
+        </div>`).join('')}
       <div class="sf">Copy for agent includes these findings as page-wide fixes.</div>`;
   }
   function focusFinding(fi, ei) {
@@ -2146,11 +2203,14 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
     setTimeout(() => {
       openPop(comp);
       if (!current.checked.has(f.id)) { current.checked.add(f.id); showing = true; applyRules(current); renderList(); }
+      setShut(GROUPS.findIndex(([g]) => g === RULE_GROUP[f.id]), false); // open the rule's group so the checked rule is visible
       const row = list.querySelector(`.row[data-id="${f.id}"]`); if (row) list.scrollTop = row.offsetTop - 80;
       placePop();
     }, 380);
   }
   scanPanel.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-ftog]');
+    if (t) { const f = t.closest('.fnd'), close = !f.classList.contains('shut'); f.classList.toggle('shut', close); t.setAttribute('aria-expanded', String(!close)); return; }
     const b = e.target.closest('button[data-ei]'); if (b) focusFinding(+b.dataset.fi, +b.dataset.ei);
   });
   scanPanel.addEventListener('mouseover', (e) => {
