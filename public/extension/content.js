@@ -2032,7 +2032,9 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
   function placePop() {
     if (!current) return;
     const r = current.el.getBoundingClientRect();
-    const W = 344, H = pop.offsetHeight || 500, vw = innerWidth, vh = innerHeight, m = 12, top0 = 60;
+    // Use the page's visible width and height, not innerWidth/innerHeight: those include the page scrollbar,
+    // so a panel pinned to the right edge would slide partly under a classic (always-visible) scrollbar.
+    const W = 344, H = pop.offsetHeight || 500, vw = document.documentElement.clientWidth || innerWidth, vh = document.documentElement.clientHeight || innerHeight, m = 12, top0 = 60;
     // Beside the element if it fits, otherwise pinned to the right edge of the viewport.
     const left = r.right + m + W <= vw - m ? r.right + m : r.left - W - m >= m ? r.left - W - m : vw - W - m;
     const top = Math.max(top0, Math.min(r.top, vh - H - m));
