@@ -1,5 +1,9 @@
 import { animate, motion, useMotionValue, useReducedMotion, useScroll, useTransform } from 'motion/react';
-import { Children, cloneElement, isValidElement, useLayoutEffect, useRef } from 'react';
+import { Children, cloneElement, isValidElement, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
+
+// False on the server and during hydration, true after, so the first client render matches the pre-rendered HTML.
+const noSubscribe = () => () => {};
+const useHydrated = () => useSyncExternalStore(noSubscribe, () => true, () => false);
 
 // ScrollWords. Splits its children into words; each word fades in from hidden,
 // rises 0.4em and un-blurs as the text scrolls through the window below, one after another, so it reads
@@ -51,6 +55,7 @@ function countWords(node) {
 
 export default function ScrollWords({ children }) {
   const reduce = useReducedMotion();
+  const hydrated = useHydrated();
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: OFFSET });
   const driver = useMotionValue(0);
@@ -69,10 +74,10 @@ export default function ScrollWords({ children }) {
     }
     driver.set(scrollYProgress.get() || p0);
     return scrollYProgress.on('change', (v) => driver.set(v));
-  }, [reduce, total, driver, scrollYProgress]);
+  }, [reduce, hydrated, total, driver, scrollYProgress]);
 
-  // Pre-rendered HTML (no window) gets the plain text, so crawlers and link previews read each heading once.
-  if (reduce || typeof window === 'undefined') return <>{children}</>;
+  // Pre-rendered HTML gets the plain text, so crawlers and link previews read each heading once.
+  if (reduce || !hydrated) return <>{children}</>;
 
   const step = total > 1 ? (1 - WINDOW) / (total - 1) : 0;
   let index = 0;
