@@ -33,10 +33,18 @@
   .promo { margin-top: 24px; padding: 20px 24px; background: #fbf1df; border: 6px solid #1f2d5c; border-radius: 22px; color: #1f2d5c; }
   .promo b { font-size: 17px; }
   .stat { font-family: "JetBrains Mono", Menlo, monospace; font-size: 27px; font-weight: 700; color: #7c3aed; }
+  .topnav { display: flex; gap: 2px; margin-bottom: 28px; font-size: 13px; }
+  .topnav a { padding: 4px 6px; color: #555; text-decoration: none; }
+  .note a { color: #333; text-decoration: none; }
+  .signup { margin-top: 32px; display: grid; gap: 10px; max-width: 420px; }
+  .signup input { padding: 10px 12px; border: 1px solid #ddd; border-radius: 10px; }
 </style>
 </head>
 <body>
 <div class="wrap">
+  <nav class="topnav" aria-label="Main">
+    <a href="#hero">Product</a><a href="#hero">Solutions</a><a href="#hero">Pricing</a><a href="#hero">Docs</a><a href="#hero">Blog</a><a href="#hero">Careers</a><a href="#hero">Press</a><a href="#hero">Partners</a><a href="#hero">Contact</a>
+  </nav>
   <section class="hero" id="hero">
     <div class="blob" aria-hidden="true"></div>
     <span class="pill">✨ New</span><span class="pill">AI-powered</span>
@@ -76,6 +84,16 @@
   </div>
 
   <div class="promo" id="promo"><b>Start your free trial today</b> — no credit card required, cancel anytime.</div>
+
+  <p class="note" id="note">Already a customer? Read the <a href="#signup">migration guide</a> before you switch plans.</p>
+
+  <form class="signup" id="signup" autocomplete="off" onsubmit="return false">
+    <label for="su-name">Full name</label><input id="su-name" name="fullname" required>
+    <label for="su-email">Work email</label><input id="su-email" name="email" type="text" required>
+    <label for="su-phone">Phone</label><input id="su-phone" name="phone">
+    <label for="su-pass">Create password</label><input id="su-pass" name="password" type="password" required onpaste="return false">
+    <button type="submit" class="btn">Create account</button>
+  </form>
 
   <div class="callout" id="callout"><b>Built for modern teams</b> — trusted by 1,204 companies worldwide -- and growing every day.</div>
 </div>

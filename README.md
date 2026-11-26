@@ -4,11 +4,11 @@
 
 An assistant for deslopping interfaces.
 
-Yba is a Chrome extension that finds what makes a page look AI-made. It checks the page you're on for 52 signs of AI-generated design and copy, previews each fix on the live page, and writes a markdown report your coding agent can apply to the real source. It also runs in Edge, Arc, Brave, Opera and other Chromium browsers.
+Yba is a Chrome extension that finds what makes a page look AI-made. It checks the page you're on for 57 signs of AI-generated design and copy, and of friction that slows visitors down, previews each fix on the live page, and writes a markdown report your coding agent can apply to the real source. It also runs in Edge, Arc, Brave, Opera and other Chromium browsers.
 
 ## How it works
 
-1. Open Yba with the toolbar icon or Alt+Shift+D and it scans the whole page, running 43 checks at the width you're viewing it. A panel lists the fonts the page uses (AI-default ones are marked), its colours, radii and effects, and every rule that fired, sorted by how many elements it hit.
+1. Open Yba with the toolbar icon or Alt+Shift+D and it scans the whole page, running 48 checks at the width you're viewing it. A panel lists the fonts the page uses (AI-default ones are marked), its colours, radii and effects, and every rule that fired, sorted by how many elements it hit.
 2. Click a finding, or any element on the page, to preview the fix. The rule applies right there as a temporary style, and pressing H flips between before and after. Nothing touches your code, and a refresh puts the page back.
 3. Approve the fixes you want, then Copy for agent puts a report on your clipboard. Page-wide problems come first, so fonts and colours get fixed once in your tokens. Each approved component follows with its CSS selector, its HTML from before the preview, and the instruction for every rule you checked. Paste it into Claude Code, Cursor or any agent that edits your files.
 
@@ -24,10 +24,11 @@ Yba is a Chrome extension that finds what makes a page look AI-made. It checks t
 | Responsive | shrink big pictures on phones\*, stop sideways scrolling, make small text bigger |
 | Banned patterns | remove side stripes, thin out heavy borders, remove rainbow text, rethink big-number stats\*, vary repeated cards\*, remove background grids, drop arrows from buttons, remove decorative status dots, drop fake terminal windows\* |
 | Behaviour | show loading progress\*, use helpful animation, load the main image first\* |
+| Friction | trim long menus\*, space out tap targets\*, make links look like links, help browsers fill in forms\*, mark required fields\* |
 
 Rules marked \* need new words or new assets, so Yba outlines the spot in red with a short note and leaves the rewrite to your agent. The rest preview live.
 
-The design rules follow [impeccable](https://impeccable.style)'s design laws. The font list comes from published notes on AI-default typography: Inter, Geist, Space Grotesk and friends, plus the generic 2010s defaults. The copy rules target the phrasing patterns common in AI-written copy, so Yba catches lines like "it's not X, it's Y" and "unlock the power of". Accessibility checks follow WCAG 2.2.
+The design rules follow [impeccable](https://impeccable.style)'s design laws. The font list comes from published notes on AI-default typography: Inter, Geist, Space Grotesk and friends, plus the generic 2010s defaults. The copy rules target the phrasing patterns common in AI-written copy, so Yba catches lines like "it's not X, it's Y" and "unlock the power of". Accessibility checks follow WCAG 2.2. The friction checks follow the [Laws of UX](https://lawsofux.com): Hick's law for long menus, Fitts's law for cramped tap targets, Jakob's law for links that don't look like links, and Tesler's law for forms the browser could fill in.
 
 The rules read computed styles, which makes them heuristics. Expect the odd false positive. That's why every fix is a preview you approve first, and the report goes to your agent as a spec to apply.
 

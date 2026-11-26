@@ -1384,6 +1384,152 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
         else if (n > 3) c.note(`…and ${n - 3} more.`);
       },
     },
+    // ── Friction: the Laws of UX (lawsofux.com) that cost visitors time or mistakes. ──
+    {
+      id: 'choices', label: 'Trim long menus', hint: 'Menus that show more than seven choices at once',
+      agent: 'Hick’s law: every extra choice slows the decision. Keep a horizontal navigation bar to seven items or fewer. Group the rest under a clearly named menu, move secondary links (careers, press, legal) to the footer, and keep one item visually marked as the main action.',
+      auto: 'mark',
+      apply(root, c) {
+        let n = 0;
+        for (const nav of all(root)) {
+          // Only the links need to be visible: a flex bar can measure 0px wide while its links overflow it.
+          if (!nav.matches('nav,[role=navigation],[role=menubar]')) continue;
+          // Footers and docs sidebars are sitemaps by convention; breadcrumbs and pagination are not choices.
+          if (nav.closest('footer,[role=contentinfo],aside') || /breadcrumb|pagination|footer|table of contents/i.test(nav.getAttribute('aria-label') || '')) continue;
+          if (nav.parentElement?.closest('nav,[role=navigation],[role=menubar]')) continue; // count each bar once
+          const items = [...nav.querySelectorAll('a[href],button,[role=menuitem]')].filter((el) => visible(el) && (el.innerText || '').trim());
+          if (items.length <= 7) continue;
+          const rows = new Set(items.map((el) => Math.round(el.getBoundingClientRect().top / 12))); // vertical lists read as a sitemap
+          if (rows.size > 2) continue;
+          c.mark(nav, `${items.length} choices · group or cut to 7`); n++;
+          c.note(`A menu shows ${items.length} choices at once`);
+        }
+        if (!n) c.note('Menus keep to seven choices or fewer.');
+      },
+    },
+    {
+      id: 'tapgap', label: 'Space out tap targets', hint: 'Small buttons and links packed so close they’re easy to miss',
+      agent: 'Fitts’s law: small targets that touch are slow to hit and easy to mis-tap. Leave at least 8px between adjacent buttons and links, or make each one at least 44×44px so the spacing matters less. Segmented controls, tabs and radio groups that read as one control are fine.',
+      auto: 'mark',
+      apply(root, c) {
+        const TARGET = 'a[href],button,select,summary,input[type=checkbox],input[type=radio],input[type=submit],input[type=button],[role=button],[role=link],[role=checkbox],[role=switch]';
+        const targets = all(root).filter((el) => el.matches(TARGET) && visible(el)
+          && !(el.tagName === 'A' && cs(el).display === 'inline' && el.closest('p,li,td,dd,blockquote,figcaption')) // links in running text are exempt
+          && !el.closest('[role=tablist],[role=radiogroup],[role=group][aria-label]')
+          && !el.parentElement?.closest(TARGET));
+        const done = new Set(); let n = 0;
+        for (let i = 0; i < targets.length; i++) {
+          const a = targets[i], ra = a.getBoundingClientRect();
+          for (let j = i + 1; j < targets.length; j++) {
+            const b = targets[j], rb = b.getBoundingClientRect();
+            if (Math.min(ra.width, ra.height, rb.width, rb.height) >= 32) continue; // both comfortably big
+            const vOverlap = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top);
+            const hOverlap = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left);
+            // Side by side: share most of a row, with a gap under 8px. Stacked: share most of a column.
+            const gapX = Math.max(ra.left, rb.left) - Math.min(ra.right, rb.right);
+            const gapY = Math.max(ra.top, rb.top) - Math.min(ra.bottom, rb.bottom);
+            const sideBySide = vOverlap > Math.min(ra.height, rb.height) / 2 && gapX >= 0 && gapX < 8;
+            const stacked = hOverlap > Math.min(ra.width, rb.width) / 2 && gapY >= 0 && gapY < 8;
+            if (!sideBySide && !stacked) continue;
+            let box = a.parentElement; while (box && !box.contains(b)) box = box.parentElement;
+            if (!box || box === document.body || done.has(box)) continue;
+            done.add(box); c.mark(box, 'Targets too close · leave 8px'); n++;
+            if (n <= 4) c.note(`“${short((a.innerText || a.getAttribute('aria-label') || a.tagName.toLowerCase()).trim(), 18)}” and “${short((b.innerText || b.getAttribute('aria-label') || b.tagName.toLowerCase()).trim(), 18)}” are ${Math.round(sideBySide ? gapX : gapY)}px apart`);
+          }
+        }
+        if (!n) c.note('Buttons and links have room between them.');
+        else if (n > 4) c.note(`…and ${n - 4} more.`);
+      },
+    },
+    {
+      id: 'linkstyle', label: 'Make links look like links', hint: 'Links in text with no underline that blend in',
+      agent: 'Jakob’s law: visitors expect links in running text to be underlined. Underline links inside paragraphs and lists (text-decoration-line: underline with text-underline-offset around 0.15em). If the design drops the underline, the link colour needs at least 3:1 contrast with the text around it plus an underline on hover and focus (WCAG 1.4.1).',
+      auto: true,
+      apply(root, c) {
+        let n = 0;
+        for (const el of all(root)) {
+          if (el.tagName !== 'A' || !el.hasAttribute('href') || !visible(el)) continue;
+          const host = el.closest('p,li,dd,td,blockquote,figcaption');
+          if (!host || el.closest('nav,[role=navigation],header,footer,[role=menu],[role=menubar]')) continue;
+          const st = cs(el); if (!/inline/.test(st.display) || isActionButton(el)) continue;
+          const lt = (el.innerText || '').trim(), ht = (host.innerText || '').trim();
+          if (!lt || ht.length < lt.length + 12) continue; // the link has to sit inside running text
+          if (st.textDecorationLine.includes('underline') || px(st.borderBottomWidth) > 0 || st.backgroundImage !== 'none') continue;
+          const fg = rgba(st.color), around = rgba(cs(el.parentElement).color);
+          if (contrast(fg, around) >= 3) continue; // colour alone sets it apart well enough
+          c.set(el, 'text-decoration-line', 'underline'); c.set(el, 'text-underline-offset', '0.15em'); c.set(el, 'text-decoration-thickness', 'from-font'); n++;
+          if (n <= 4) c.note(`Underlined “${short(lt, 24)}”`);
+        }
+        if (!n) c.note('Links in text stand out.');
+        else if (n > 4) c.note(`…and ${n - 4} more.`);
+      },
+    },
+    {
+      id: 'autofill', label: 'Help browsers fill in forms', hint: 'Email, phone or address fields the browser can’t fill for you',
+      agent: 'Tesler’s law: the browser already knows the visitor’s name, email, phone, address and card, so let it fill them in. Give each field the matching autocomplete token (email, tel, given-name, family-name, postal-code, street-address, cc-number, new-password, current-password and so on) and the matching input type (type="email", type="tel") so phones show the right keyboard. Never set autocomplete="off" on these fields, and never block pasting into a password or code field.',
+      auto: 'mark',
+      apply(root, c) {
+        // First match wins, so the specific purposes come before the loose “name” one.
+        const PURPOSE = [
+          [/card.?number|cc.?num|credit.?card|card.?no/, 'cc-number'], [/expir|exp.?date|mm\s*\/\s*yy/, 'cc-exp'], [/\bcvc\b|\bcvv\b|security.?code/, 'cc-csc'],
+          [/card.?holder|name on card/, 'cc-name'], [/e-?mail/, 'email', 'email'], [/phone|mobile|\btel\b|telephone/, 'tel', 'tel'],
+          [/first.?name|given.?name|fname/, 'given-name'], [/last.?name|surname|family.?name|lname/, 'family-name'], [/company|organi[sz]ation/, 'organization'],
+          [/user.?name|login/, 'username'], [/\bzip\b|postal|post.?code/, 'postal-code'], [/\bcity\b|\btown\b/, 'address-level2'], [/country/, 'country-name'],
+          [/address|street/, 'street-address'], [/full.?name|your name|^name$|\bname\b/, 'name'],
+        ];
+        let n = 0;
+        for (const el of all(root)) {
+          if (!el.matches('input,select,textarea') || !visible(el) || el.disabled || el.readOnly) continue;
+          const type = (el.getAttribute('type') || 'text').toLowerCase();
+          if (!['text', 'email', 'tel', 'password', 'number', ''].includes(type) && el.tagName === 'INPUT') continue;
+          const label = [el.name, el.id, el.getAttribute('aria-label'), el.getAttribute('placeholder'), ...[...(el.labels || [])].map((l) => l.innerText)].filter(Boolean).join(' ').toLowerCase();
+          if (/search|coupon|promo|captcha|otp|one.?time/.test(label)) continue;
+          let token = null, wantType = null;
+          if (type === 'password') token = /new|confirm|create|repeat|sign.?up|register/.test(label) ? 'new-password' : 'current-password';
+          else for (const [re, t, ty] of PURPOSE) if (re.test(label)) { token = t; wantType = ty; break; }
+          const why = [];
+          const ac = (el.getAttribute('autocomplete') || '').trim().toLowerCase();
+          if (token && (ac === 'off' || (!ac && el.form?.getAttribute('autocomplete') === 'off'))) why.push('Autofill is turned off');
+          else if (token && !ac) why.push(`Add autocomplete="${token}"`);
+          if (wantType && type !== wantType && el.tagName === 'INPUT') why.push(`Use type="${wantType}"`);
+          if (/return\s+false|preventDefault/.test(el.getAttribute('onpaste') || '')) why.push('Pasting is blocked');
+          if (!why.length) continue;
+          c.mark(el, why.join(' · ')); n++;
+          const shown = [...(el.labels || [])].map((l) => l.innerText).join(' ').trim() || el.getAttribute('aria-label') || el.getAttribute('placeholder') || el.name || type;
+          if (n <= 4) c.note(`“${short(shown, 22)}”: ${why.join(', ').toLowerCase()}`);
+        }
+        if (!n) c.note('Browsers can fill in every field.');
+        else if (n > 4) c.note(`…and ${n - 4} more.`);
+      },
+    },
+    {
+      id: 'required', label: 'Mark required fields', hint: 'Forms that don’t say which fields must be filled in',
+      agent: 'Tell visitors which fields they must fill in before they press submit, not after an error. Mark required fields in the visible label (an asterisk explained once at the top of the form, or the word “required”), or mark the optional ones with “(optional)” when most fields are required. Keep the required attribute on the input so browsers and screen readers know too.',
+      auto: 'mark',
+      apply(root, c) {
+        const FIELD = 'input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=reset]):not([type=image]),select,textarea';
+        const labelText = (el) => [...(el.labels || [])].map((l) => l.innerText).join(' ')
+          + ' ' + (el.getAttribute('aria-labelledby') || '').split(/\s+/).map((id) => document.getElementById(id)?.innerText || '').join(' ');
+        const forms = new Set(all(root).filter((el) => el.matches(FIELD) && visible(el)).map((el) => el.form || el.closest('form,[role=form]') || document.body));
+        let n = 0;
+        for (const form of forms) {
+          const fields = [...form.querySelectorAll(FIELD)].filter((el) => visible(el) && !isOurs(el));
+          if (fields.length < 2) continue; // a lone search box or newsletter field explains itself
+          const req = fields.filter((el) => el.required || el.getAttribute('aria-required') === 'true');
+          if (!req.length) continue;
+          const opt = fields.filter((el) => !req.includes(el));
+          if (/all fields (are )?required/i.test(form.innerText || '')) continue;
+          if (opt.length && opt.every((el) => /optional/i.test(labelText(el) + ' ' + (el.getAttribute('placeholder') || '')))) continue;
+          for (const el of req) {
+            if (/\*|required/i.test(labelText(el))) continue;
+            c.mark(el, 'Say this field is required'); n++;
+            if (n <= 4) c.note(`“${short(labelText(el).trim() || el.getAttribute('placeholder') || el.name || 'A field', 24)}” is required but doesn’t say so`);
+          }
+        }
+        if (!n) c.note('Required fields are marked.');
+        else if (n > 4) c.note(`…and ${n - 4} more.`);
+      },
+    },
   ];
   const RULE = Object.fromEntries(RULES.map((r) => [r.id, r]));
 
@@ -1391,7 +1537,8 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
   // Runs detection-worthy rules in dry-run mode over <body>: nothing changes, every target element is recorded.
   const SCAN_RULES = ['fonts', 'gradtext', 'badges', 'labels', 'headlines', 'copytells', 'weakcta', 'emdash', 'targets', 'alt', 'iconlabels', 'mediaspace', 'italics', 'mono', 'scale', 'accent', 'neutrals', 'contrast',
     'stripes', 'heavyborder', 'nest', 'toprow', 'mobilefit', 'hscroll', 'smalltext', 'heroMetric', 'cardGrid', 'embellish', 'icons', 'radius', 'motion',
-    'faq', 'logobar', 'deadlinks', 'fakebuttons', 'pointer', 'fieldlabels', 'headingorder', 'bggrid', 'arrows', 'statusdot', 'terminal', 'heroimg'];
+    'faq', 'logobar', 'deadlinks', 'fakebuttons', 'pointer', 'fieldlabels', 'headingorder', 'bggrid', 'arrows', 'statusdot', 'terminal', 'heroimg',
+    'choices', 'tapgap', 'linkstyle', 'autofill', 'required'];
   let scanResult = null, scanning = false;
 
   async function runScan(onProgress) {
@@ -1593,6 +1740,7 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
     ['Responsive', ['mobilefit', 'hscroll', 'smalltext']],
     ['Content', ['badges', 'labels', 'headlines', 'copytells', 'weakcta', 'emdash', 'product', 'faq', 'logobar']],
     ['Behaviour', ['loading', 'motion', 'heroimg']],
+    ['Friction', ['choices', 'tapgap', 'linkstyle', 'autofill', 'required']],
   ];
   // Colour coding from the design board: c = fill, e = darker bottom edge, k = deep shade of the same hue for text on light fills.
   const GROUP_TONE = {
@@ -1604,6 +1752,7 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
     'Responsive': { c: '#FFD749', e: '#F6B832', k: '#6B4A00' },
     'Content': { c: '#00B7CD', e: '#01899A', k: '#00434D' },
     'Behaviour': { c: '#802C62', e: '#421454', k: '#3A0E2C' },
+    'Friction': { c: '#B9A6FF', e: '#7F68D9', k: '#2E1F6B' },
   };
   const GROUP_COLOR = Object.fromEntries(Object.entries(GROUP_TONE).map(([g, t]) => [g, t.c]));
   // WCAG contrast ratio between two hex colours.
@@ -1621,6 +1770,7 @@ ${S} :is(a,button,[role=button],input,select,textarea):focus-visible{outline:2px
     'Responsive': '<rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/>',
     'Content': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8"/>',
     'Behaviour': '<path d="m9 9 5 12 1.8-5.2L21 14Z"/><path d="M7.2 2.2 8 5.1M5.1 8l-2.9-.8M14 4.1 12 6M6 12l-1.9 2"/>',
+    'Friction': '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
   };
   const groupIcon = (name) => `<svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${GROUP_ICON[name]}</svg>`;
   // Collapsed groups in the rules panel. Every group starts collapsed.
