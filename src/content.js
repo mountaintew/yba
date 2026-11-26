@@ -26,7 +26,7 @@ export const report = {
 
 export const rules = {
   title: 'What Yba checks on your page',
-  intro: "The rules come from impeccable's design laws, published lists of AI-default fonts, the phrasing patterns common in AI-written copy, and WCAG 2.2.",
+  intro: "The rules come from impeccable's design laws, published lists of AI-default fonts, the phrasing patterns common in AI-written copy, WCAG 2.2, and the Laws of UX on friction.",
   groups: [
     ['Content', [['Remove filler badges'], ['Remove repeated labels'], ['Make headlines specific'], ['Rewrite AI-sounding text'], ['Make button text specific'], ['Remove long dashes'], ['Show the real product'], ['Answer real questions in the FAQ'], ['Back up the logo bar']]],
     ['Typography', [['Replace overused AI fonts'], ['Remove random italics'], ['Use code-style font only for code'], ['Make headings stand out'], ['Fix awkward line breaks'], ['Line up numbers'], ['Fine-tune alignment']]],
@@ -36,6 +36,7 @@ export const rules = {
     ['Responsive', [['Shrink big pictures on phones'], ['Stop sideways scrolling'], ['Make small text bigger']]],
     ['Banned patterns', [['Remove side stripes'], ['Thin out heavy borders'], ['Remove rainbow text'], ['Rethink big-number stats'], ['Vary repeated cards'], ['Remove background grids'], ['Drop arrows from buttons'], ['Remove decorative status dots'], ['Drop fake terminal windows']]],
     ['Behaviour', [['Show loading progress'], ['Use helpful animation'], ['Load the main image first']]],
+    ['Friction', [['Trim long menus'], ['Space out tap targets'], ['Make links look like links'], ['Help browsers fill in forms'], ['Mark required fields']]],
   ],
 };
 
@@ -59,5 +60,5 @@ export const faq = {
 export const closing = {
   title: 'Clean up your next vibe-coded page',
   body: 'Yba is free on the Chrome Web Store.',
-  version: 'Yba v1.0',
+  version: 'Yba v1.3',
 };
